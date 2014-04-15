@@ -9,7 +9,7 @@ void run(int i = 0){
   float centmin[14]= {0  ,10 ,20 ,30 ,50 ,0 ,10,20,30,50 ,0 ,10,20 ,0};
   float centmax[14]= {10 ,20 ,30 ,50 ,100,10,20,30,50,100,10,20,100,100}; 
   
-  int nevents =     500;
+  int nevents =     1000;
   int ncent_step=   4;
   int naccept_step= 4;
   int npt_step=     4;
@@ -22,6 +22,7 @@ void run(int i = 0){
   int istep=0;
   		
   while(icent_step<=ncent_step && iaccept_step<=naccept_step && ipt_step<=npt_step && irmin_step<=nrmin_step){
+    std::cout << "cent:"<< ncent_step << "  accept: " << iaccept_step << "  pt: " << ipt_step << "  rmin: " << irmin_step << std::endl;
     track_ntupler_cent(icent_step,iaccept_step,ipt_step,irmin_step,ptmin[i],ptmax[i],centmin[i],centmax[i],nevents);
     plot_efficiency_cent(icent_step,iaccept_step,ipt_step,irmin_step,ptmin[i],ptmax[i],centmin[i],centmax[i],nevents);
     if(istep%4==0) icent_step++;

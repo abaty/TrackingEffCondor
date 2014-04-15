@@ -8,6 +8,7 @@ now="trkeff_corr_$(date +"%Y_%m_%d__%H_%M_%S")"
 njobs=14
 
 mkdir $now
+cp centrality_weights.root $now
 cp run.sh $now
 cat run.condor | sed "s@log_flag@$now@g" | sed "s@dir_flag@$PWD/$now@g" | sed "s@user_flag@$USER@g" |  sed "s@arglist@ @g" | sed "s@transfer_filelist@run.exe@g" | sed "s@njobs@$njobs@g" > $now/run.condor
 

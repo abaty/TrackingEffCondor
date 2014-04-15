@@ -66,7 +66,6 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
    p_eff_accept[iaccept] = (TProfile2D*)f_eff_accept[iaccept]->Get("p_eta_phi_corr");
  }
  
-
  TFile *f_eff_pt[nstep_pt];
  TProfile * p_eff_pt[nstep_pt];
  for(int ipt=0;ipt<nstep_pt;ipt++){
@@ -74,7 +73,6 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
    p_eff_pt[ipt] = (TProfile*)f_eff_pt[ipt]->Get("p_pt_corr");
  }
  
-  
  TFile *f_eff_rmin[nstep_rmin];
  TProfile * p_eff_rmin[nstep_rmin];
  for(int irmin=0;irmin<nstep_rmin;irmin++){
@@ -82,9 +80,13 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
    p_eff_rmin[irmin] = (TProfile*)f_eff_rmin[irmin]->Get("p_rmin_corr");
  }
 
+ TFile * centWeightsFile = new TFile("centrality_weights.root","read");
+ TH1F * centWeights = new TH1F("centWeight","centWeight",100,0,200);
+ centWeights = (TH1F*)centWeightsFile->Get("centrality_weight");
+
  TFile *outf= new TFile(Form("track_ntuple_cent_%d_accept_%d_pt_%d_rmin_%d_ptmin%d_ptmax%d_centmin%d_centmax%d.root",nstep_cent,nstep_accept,nstep_pt,nstep_rmin,(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max),"recreate");
 
- std::string trackVars="pthat:pt:mpt:eta:phi:trackselect:cent:pt1:pt2:pt3:eta1:eta2:eta3:phi1:phi2:phi3:dphi:incone1:incone2:incone3:refpt1:refpt2:refpt3:refeta1:refeta2:refeta3:refphi1:refphi2:refphi3:matchedpt1:matchedpt2:matchedpt3:matchedR1:matchedR2:matchedR3:trackMax1:trackMax2:trackMax3:incone:rmin_reco:rmin_gen:eff_cent:eff_accept:eff_pt:eff_rmin:eff:weight:pthat_weight";
+ std::string trackVars="pthat:pt:mpt:eta:phi:trackselect:cent:pt1:pt2:pt3:eta1:eta2:eta3:phi1:phi2:phi3:dphi:incone1:incone2:incone3:refpt1:refpt2:refpt3:refeta1:refeta2:refeta3:refphi1:refphi2:refphi3:matchedpt1:matchedpt2:matchedpt3:matchedR1:matchedR2:matchedR3:trackMax1:trackMax2:trackMax3:incone:rmin_reco:rmin_gen:eff_cent:eff_accept:eff_pt:eff_rmin:eff:weight:pthat_weight:cent_weight";
 
  
  TNtuple *nt_track = new TNtuple("nt_track","",trackVars.data());
@@ -92,8 +94,8 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
   for(int ifile=0; ifile<5; ifile++){
   std::cout<<ifile<<std::endl;
   int nentries = ftrk[ifile]->GetEntriesFast();
-  //for(int jentry=0;jentry<nentries;jentry++){
-  for(int jentry=0;jentry<nevents;jentry++){
+  for(int jentry=0;jentry<nentries;jentry++){
+  //for(int jentry=0;jentry<nevents;jentry++){
   if((jentry%1000)==0) std::cout<<jentry<<"/"<<nentries<< "   File:" << ifile <<std::endl;
 
   ftrk[ifile]->GetEntry(jentry);
@@ -104,7 +106,7 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
 //vertexShift can be used to move the center of the vertex distribution if needed
   float cent=fhi[ifile]->hiBin;
   float vz = fhi[ifile]->vz;
-  float vertexShift =0;
+  float vertexShift =0.0966;
 
   float pt1=-99;
   float phi1=-99;
@@ -136,7 +138,8 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
   float dphi=-99;
   float weight = 0;
   float pthat_weight = 0;
-  //float ptratio=-99;
+  float cent_weight = 0; 
+ //float ptratio=-99;
   float eff_cent=1;
   refpt3=-99;
 
@@ -151,8 +154,10 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
   else if(fjet[ifile]->pthat <100) pthat_weight = pthatWeight[2];
   else if(fjet[ifile]->pthat <120) pthat_weight = pthatWeight[3];
   else                      pthat_weight = pthatWeight[4];
-  
-  weight = pthat_weight;
+
+  cent_weight = centWeights->GetBinContent(centWeights->FindBin(fhi[ifile]->hiBin));  
+
+  weight = pthat_weight*cent_weight;
  
   std::vector<std::pair<double, std::pair<double,std::pair<double, std::pair<double,std::pair<double,std::pair<double,std::pair<double,std::pair<double,double> > > > > > > > > jets;
   int njet=0;
@@ -250,7 +255,7 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
    
    float eff=eff_accept*eff_cent*eff_pt*eff_rmin;
 
-   float entry[]={fjet[ifile]->pthat,pt,mpt,eta,phi,trackselect,cent,pt1,pt2,pt3,eta1,eta2,eta3,phi1,phi2,phi3,dphi,incone1,incone2,incone3,refpt1,refpt2,refpt3,refeta1,refeta2,refeta3,refphi1,refphi2,refphi3,matchedpt1,matchedpt2,matchedpt3,matchedR1,matchedR2,matchedR3,trackMax1,trackMax2,trackMax3,incone,rmin_reco,rmin_gen,eff_cent,eff_accept,eff_pt,eff_rmin,eff,weight,pthat_weight};
+   float entry[]={fjet[ifile]->pthat,pt,mpt,eta,phi,trackselect,cent,pt1,pt2,pt3,eta1,eta2,eta3,phi1,phi2,phi3,dphi,incone1,incone2,incone3,refpt1,refpt2,refpt3,refeta1,refeta2,refeta3,refphi1,refphi2,refphi3,matchedpt1,matchedpt2,matchedpt3,matchedR1,matchedR2,matchedR3,trackMax1,trackMax2,trackMax3,incone,rmin_reco,rmin_gen,eff_cent,eff_accept,eff_pt,eff_rmin,eff,weight,pthat_weight,cent_weight};
    nt_track->Fill(entry);
   }
  }
@@ -278,4 +283,5 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
     ftrk[ifile]->Close();
     evtSelFile[ifile]->Close();
   }
+  centWeightsFile->Close();
 }

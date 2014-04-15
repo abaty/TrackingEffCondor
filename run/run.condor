@@ -11,6 +11,6 @@ Rank         = Mips
 +AccountingGroup = "group_cmshi.user_flag"
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
-transfer_input_files = transfer_filelist
+transfer_input_files = transfer_filelist,centrality_weights.root
 
 Queue njobs
