@@ -96,7 +96,7 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
   int nentries = ftrk[ifile]->GetEntriesFast();
   for(int jentry=0;jentry<nentries;jentry++){
   //for(int jentry=0;jentry<nevents;jentry++){
-  if((jentry%1000)==0) std::cout<<jentry<<"/"<<nentries<< "   File:" << ifile <<std::endl;
+  if((jentry%10000)==0) std::cout<<jentry<<"/"<<nentries<< "   File:" << ifile <<std::endl;
 
   ftrk[ifile]->GetEntry(jentry);
   fhi[ifile]->GetEntry(jentry);
