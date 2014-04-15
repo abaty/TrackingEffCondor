@@ -8,7 +8,6 @@
 #include "TString.h"
 #include "TRandom1.h"
 #include "TH1F.h"
-
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1D.h"
@@ -27,16 +26,32 @@
 void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int nstep_rmin=1,double bin_pt_min=8,double bin_pt_max=100,double bin_cent_min=0,double bin_cent_max=10,int nevents=593463){
  TH1D::SetDefaultSumw2();
  double R=0.3;
+ //converted to nb
+ float pthatWeight[5] = {4.41885e-01,3.0133e-02,3.24954e-04,1.03072e-04,2.41754e-05};
  
- //TString directory="/mnt/hadoop/cms/store/user/yenjie/HiForest_v27/";
- //TString infname="Dijet100_HydjetDrum_v27_mergedV1";
- TString directory="/mnt/hadoop/cms/store/user/dgulhan/HIMC/Jet50/Track8_Jet19_STARTHI53_LV1/merged/";
- TString infname="HiForest_Pythia_Hydjet_Jet50_Track8_Jet19_STARTHI53_LV1_merged_forest_0"; 
+ TString directory="/mnt/hadoop/cms/store/user/velicanu/";
+ const char* infname[5];
+ infname[0] = "/HydjetDrum_Pyquen_Dijet30_FOREST_Track8_Jet24_FixedPtHat_v0_mergedpkurt/0"; 
+ infname[1] = "/HydjetDrum_Pyquen_Dijet50_FOREST_Track8_Jet24_FixedPtHat_v0_mergedpkurt/0";
+ infname[2] = "/HydjetDrum_Pyquen_Dijet80_FOREST_Track8_Jet24_FixedPtHat_v0_mergedpkurt/0";
+ infname[3] = "/HydjetDrum_Pyquen_Dijet100_FOREST_Track8_Jet24_FixedPtHat_v0/0";
+ infname[4] = "/HydjetDrum_Pyquen_Dijet120_FOREST_Track8_Jet24_FixedPtHat_v0/0";
 
- trackTree * ftrk = new trackTree(Form("%s/%s.root",directory.Data(),infname.Data()));
- HiTree * fhi = new HiTree(Form("%s/%s.root",directory.Data(),infname.Data()));
- t * fjet = new t(Form("%s/%s.root",directory.Data(),infname.Data()));
- 
+ trackTree * ftrk[5];
+ HiTree * fhi[5];
+ t * fjet[5];
+ TFile * evtSelFile[5];
+ TTree * evtSel[5];
+ int pcoll[5];
+ for(int ifile=0; ifile<5; ifile++){
+   ftrk[ifile] = new trackTree(Form("%s/%s.root",directory.Data(),infname[ifile]));
+   fhi[ifile] = new HiTree(Form("%s/%s.root",directory.Data(),infname[ifile]));
+   fjet[ifile] = new t(Form("%s/%s.root",directory.Data(),infname[ifile]));
+   evtSelFile[ifile] = new TFile(Form("%s/%s.root",directory.Data(),infname[ifile]),"read");
+   evtSel[ifile] = (TTree*) evtSelFile[ifile]->Get("skimanalysis/HltTree");
+   evtSel[ifile]->SetBranchAddress("pcollisionEventSelection", &pcoll[ifile]); 
+  }
+
  TFile *f_eff_cent[nstep_cent];
  TProfile *p_eff_cent[nstep_cent]; 
  for(int icent=0; icent<nstep_cent;icent++){
@@ -54,7 +69,6 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
 
  TFile *f_eff_pt[nstep_pt];
  TProfile * p_eff_pt[nstep_pt];
- 
  for(int ipt=0;ipt<nstep_pt;ipt++){
    f_eff_pt[ipt]= new TFile(Form("eff_corr_nstep_cent%d_accept%d_pt%d_rmin%d_pt%d_%d_cent%d_%d.root",ipt+1, ipt+1, ipt,ipt,(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max));
    p_eff_pt[ipt] = (TProfile*)f_eff_pt[ipt]->Get("p_pt_corr");
@@ -63,32 +77,35 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
   
  TFile *f_eff_rmin[nstep_rmin];
  TProfile * p_eff_rmin[nstep_rmin];
- 
  for(int irmin=0;irmin<nstep_rmin;irmin++){
    f_eff_rmin[irmin]= new TFile(Form("eff_corr_nstep_cent%d_accept%d_pt%d_rmin%d_pt%d_%d_cent%d_%d.root",irmin+1, irmin+1, irmin+1,irmin,(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max));
    p_eff_rmin[irmin] = (TProfile*)f_eff_rmin[irmin]->Get("p_rmin_corr");
  }
- 
- 
- int nentries = ftrk->GetEntriesFast();
 
- TFile *outf= new TFile(Form("track_ntuple_%s_%devts_cent_%d_accept_%d_pt_%d_rmin_%d_ptmin%d_ptmax%d_centmin%d_centmax%d.root",infname.Data(),nevents,nstep_cent,nstep_accept,nstep_pt,nstep_rmin,(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max),"recreate");
- // TFile *outf= new TFile(Form("../ntuples/track_ntuple_%s_%devts_cent_%d_accept_%d_pt_%d_ptmin%d_ptmax%d.root",infname.data(),nevents,nstep_cent,nstep_accept,nstep_pt,(int)bin_pt_min,(int)bin_pt_max),"recreate");
+ TFile *outf= new TFile(Form("track_ntuple_cent_%d_accept_%d_pt_%d_rmin_%d_ptmin%d_ptmax%d_centmin%d_centmax%d.root",nstep_cent,nstep_accept,nstep_pt,nstep_rmin,(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max),"recreate");
 
- // string trackVars="pt:mpt:eta:phi:trackselect:cent:vx:vy:vz:pt1:pt2:dphi:ptratio:incone1:incone2";
- std::string trackVars="pthat:pt:mpt:eta:phi:trackselect:cent:pt1:pt2:pt3:eta1:eta2:eta3:phi1:phi2:phi3:dphi:incone1:incone2:incone3:refpt1:refpt2:refpt3:refeta1:refeta2:refeta3:refphi1:refphi2:refphi3:matchedpt1:matchedpt2:matchedpt3:matchedR1:matchedR2:matchedR3:trackMax1:trackMax2:trackMax3:incone:rmin_reco:rmin_gen:eff_cent:eff_accept:eff_pt:eff_rmin:eff";
+ std::string trackVars="pthat:pt:mpt:eta:phi:trackselect:cent:pt1:pt2:pt3:eta1:eta2:eta3:phi1:phi2:phi3:dphi:incone1:incone2:incone3:refpt1:refpt2:refpt3:refeta1:refeta2:refeta3:refphi1:refphi2:refphi3:matchedpt1:matchedpt2:matchedpt3:matchedR1:matchedR2:matchedR3:trackMax1:trackMax2:trackMax3:incone:rmin_reco:rmin_gen:eff_cent:eff_accept:eff_pt:eff_rmin:eff:weight:pthat_weight";
+
  
  TNtuple *nt_track = new TNtuple("nt_track","",trackVars.data());
 
- // for(int jentry=0;jentry<nentries;jentry++){
+  for(int ifile=0; ifile<5; ifile++){
+  std::cout<<ifile<<std::endl;
+  int nentries = ftrk[ifile]->GetEntriesFast();
+  //for(int jentry=0;jentry<nentries;jentry++){
   for(int jentry=0;jentry<nevents;jentry++){
-  if((jentry%1000)==0) std::cout<<jentry<<"/"<<nentries<<std::endl;
+  if((jentry%1000)==0) std::cout<<jentry<<"/"<<nentries<< "   File:" << ifile <<std::endl;
 
-  ftrk->GetEntry(jentry);
-  fhi->GetEntry(jentry);
-  fjet->GetEntry(jentry);
+  ftrk[ifile]->GetEntry(jentry);
+  fhi[ifile]->GetEntry(jentry);
+  fjet[ifile]->GetEntry(jentry);
+  evtSel[ifile]->GetEntry(jentry);
 
-  float cent=fhi->hiBin;
+//vertexShift can be used to move the center of the vertex distribution if needed
+  float cent=fhi[ifile]->hiBin;
+  float vz = fhi[ifile]->vz;
+  float vertexShift =0;
+
   float pt1=-99;
   float phi1=-99;
   float eta1=-99;
@@ -117,21 +134,32 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
   float matchedR3=-99;
   float trackMax3=-99;
   float dphi=-99;
+  float weight = 0;
+  float pthat_weight = 0;
   //float ptratio=-99;
   float eff_cent=1;
   refpt3=-99;
 
-  if(cent*0.5<bin_cent_min || cent*0.5>=bin_cent_max) continue;
+ 
+  if(cent*0.5<bin_cent_min || cent*0.5>=bin_cent_max || abs(vz-vertexShift)>15 || !(pcoll[ifile])) continue;
   for(int icent=0;icent<nstep_cent;icent++){
     eff_cent=eff_cent*p_eff_cent[icent]->GetBinContent(p_eff_cent[icent]->FindBin(cent));
   }
+  
+  if(fjet[ifile]->pthat <50)       pthat_weight = pthatWeight[0];
+  else if(fjet[ifile]->pthat <80)  pthat_weight = pthatWeight[1];
+  else if(fjet[ifile]->pthat <100) pthat_weight = pthatWeight[2];
+  else if(fjet[ifile]->pthat <120) pthat_weight = pthatWeight[3];
+  else                      pthat_weight = pthatWeight[4];
+  
+  weight = pthat_weight;
  
   std::vector<std::pair<double, std::pair<double,std::pair<double, std::pair<double,std::pair<double,std::pair<double,std::pair<double,std::pair<double,double> > > > > > > > > jets;
   int njet=0;
-  for(int ijet=0;ijet<fjet->nref;ijet++){
+  for(int ijet=0;ijet<fjet[ifile]->nref;ijet++){
 
-   if(fabs(fjet->jteta[ijet])>2) continue;
-   jets.push_back(std::make_pair(fjet->jtpt[ijet],std::make_pair(fjet->jteta[ijet], std::make_pair(fjet->jtphi[ijet], std::make_pair(fjet->refpt[ijet],std::make_pair(fjet->refeta[ijet],std::make_pair(fjet->refphi[ijet],std::make_pair(fjet->matchedPt[ijet],std::make_pair(fjet->matchedR[ijet],fjet->trackMax[ijet])))))))));
+   if(fabs(fjet[ifile]->jteta[ijet])>2) continue;
+   jets.push_back(std::make_pair(fjet[ifile]->jtpt[ijet],std::make_pair(fjet[ifile]->jteta[ijet], std::make_pair(fjet[ifile]->jtphi[ijet], std::make_pair(fjet[ifile]->refpt[ijet],std::make_pair(fjet[ifile]->refeta[ijet],std::make_pair(fjet[ifile]->refphi[ijet],std::make_pair(fjet[ifile]->matchedPt[ijet],std::make_pair(fjet[ifile]->matchedR[ijet],fjet[ifile]->trackMax[ijet])))))))));
    njet++;
 
   }
@@ -173,16 +201,16 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
    }
   }
 
-  for(int itrk=0;itrk<ftrk->nParticle;itrk++){
-   float trackselect=(ftrk->mtrkQual[itrk] && fabs((ftrk->mtrkDxy1[itrk]/ftrk->mtrkDxyError1[itrk]))<3.0 && fabs((ftrk->mtrkDz1[itrk]/ftrk->mtrkDzError1[itrk]))<3 && (ftrk->mtrkPtError[itrk]/ftrk->mtrkPt[itrk])<0.1);
+  for(int itrk=0;itrk<ftrk[ifile]->nParticle;itrk++){
+   float trackselect=(ftrk[ifile]->mtrkQual[itrk] && fabs((ftrk[ifile]->mtrkDxy1[itrk]/ftrk[ifile]->mtrkDxyError1[itrk]))<3.0 && fabs((ftrk[ifile]->mtrkDz1[itrk]/ftrk[ifile]->mtrkDzError1[itrk]))<3 && (ftrk[ifile]->mtrkPtError[itrk]/ftrk[ifile]->mtrkPt[itrk])<0.1);
    
-   float pt=ftrk->pPt[itrk];
+   float pt=ftrk[ifile]->pPt[itrk];
    if(pt<bin_pt_min || pt>bin_pt_max) continue;
-   float mpt=ftrk->mtrkPt[itrk];
-   float eta=ftrk->pEta[itrk];
+   float mpt=ftrk[ifile]->mtrkPt[itrk];
+   float eta=ftrk[ifile]->pEta[itrk];
    if(fabs(eta)>2.4) continue;
 
-   float phi=ftrk->pPhi[itrk];
+   float phi=ftrk[ifile]->pPhi[itrk];
    float incone1=0;
    float incone2=0;
    float incone3=0;
@@ -207,25 +235,26 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
    if(sqrt(pow(eta-eta2,2)+pow(acos(cos(phi-phi2)),2))<R) incone2=1;
    if(sqrt(pow(eta-eta3,2)+pow(acos(cos(phi-phi3)),2))<R) incone3=1;
    
-   for(int ijet=0;ijet<fjet->nref;ijet++){
-    if(fabs(fjet->jteta[ijet])>2 || fjet->jtpt[ijet]<30) continue;
-    float r_reco=sqrt(pow(eta-fjet->jteta[ijet],2)+pow(acos(cos(phi-fjet->jtphi[ijet])),2));
-    float r_gen=sqrt(pow(eta-fjet->refeta[ijet],2)+pow(acos(cos(phi-fjet->refphi[ijet])),2));
+   for(int ijet=0;ijet<fjet[ifile]->nref;ijet++){
+    if(fabs(fjet[ifile]->jteta[ijet])>2 || fjet[ifile]->jtpt[ijet]<50) continue;
+    float r_reco=sqrt(pow(eta-fjet[ifile]->jteta[ijet],2)+pow(acos(cos(phi-fjet[ifile]->jtphi[ijet])),2));
+    float r_gen=sqrt(pow(eta-fjet[ifile]->refeta[ijet],2)+pow(acos(cos(phi-fjet[ifile]->refphi[ijet])),2));
     if(r_reco<R) incone=1;
     if(r_reco<rmin_reco)rmin_reco=r_reco;
     if(r_gen<rmin_gen)rmin_gen=r_gen;
    }
    
    for(int irmin=0;irmin<nstep_rmin;irmin++){
-    if(rmin_reco<5)eff_rmin=eff_rmin*p_eff_rmin[irmin]->GetBinContent(p_eff_rmin[irmin]->GetXaxis()->FindBin(rmin_reco));
+     eff_rmin=eff_rmin*p_eff_rmin[irmin]->GetBinContent(p_eff_rmin[irmin]->GetXaxis()->FindBin(rmin_reco));
    }
    
    float eff=eff_accept*eff_cent*eff_pt*eff_rmin;
 
-   float entry[]={fjet->pthat,pt,mpt,eta,phi,trackselect,cent,pt1,pt2,pt3,eta1,eta2,eta3,phi1,phi2,phi3,dphi,incone1,incone2,incone3,refpt1,refpt2,refpt3,refeta1,refeta2,refeta3,refphi1,refphi2,refphi3,matchedpt1,matchedpt2,matchedpt3,matchedR1,matchedR2,matchedR3,trackMax1,trackMax2,trackMax3,incone,rmin_reco,rmin_gen,eff_cent,eff_accept,eff_pt,eff_rmin,eff};
+   float entry[]={fjet[ifile]->pthat,pt,mpt,eta,phi,trackselect,cent,pt1,pt2,pt3,eta1,eta2,eta3,phi1,phi2,phi3,dphi,incone1,incone2,incone3,refpt1,refpt2,refpt3,refeta1,refeta2,refeta3,refphi1,refphi2,refphi3,matchedpt1,matchedpt2,matchedpt3,matchedR1,matchedR2,matchedR3,trackMax1,trackMax2,trackMax3,incone,rmin_reco,rmin_gen,eff_cent,eff_accept,eff_pt,eff_rmin,eff,weight,pthat_weight};
    nt_track->Fill(entry);
   }
  }
+}
  
   nt_track->Write();
   outf->Close();
@@ -242,8 +271,11 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
 	}	
   for(int irmin=0; irmin<nstep_rmin;irmin++){
         f_eff_rmin[irmin]->Close();
-	}		
-  fjet->Close();
-  fhi->Close();
-  ftrk->Close();
+	}
+  for(int ifile=0; ifile<5; ifile++){		
+    fjet[ifile]->Close();
+    fhi[ifile]->Close();
+    ftrk[ifile]->Close();
+    evtSelFile[ifile]->Close();
+  }
 }
