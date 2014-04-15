@@ -22,7 +22,7 @@ void run(int i = 0){
   int istep=0;
   		
   while(icent_step<=ncent_step && iaccept_step<=naccept_step && ipt_step<=npt_step && irmin_step<=nrmin_step){
-    std::cout << "cent:"<< ncent_step << "  accept: " << iaccept_step << "  pt: " << ipt_step << "  rmin: " << irmin_step << std::endl;
+    std::cout << "cent:"<< icent_step << "  accept: " << iaccept_step << "  pt: " << ipt_step << "  rmin: " << irmin_step << std::endl;
     track_ntupler_cent(icent_step,iaccept_step,ipt_step,irmin_step,ptmin[i],ptmax[i],centmin[i],centmax[i],nevents);
     plot_efficiency_cent(icent_step,iaccept_step,ipt_step,irmin_step,ptmin[i],ptmax[i],centmin[i],centmax[i],nevents);
     if(istep%4==0) icent_step++;
