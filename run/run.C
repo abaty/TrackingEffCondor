@@ -9,7 +9,7 @@ void run(int i = 0){
   float centmin[14]= {0  ,10 ,20 ,30 ,50 ,0 ,10,20,30,50 ,0 ,10,20 ,0};
   float centmax[14]= {10 ,20 ,30 ,50 ,100,10,20,30,50,100,10,20,100,100}; 
   
-  int nevents =     200;
+  int nevents =     500;
   int ncent_step=   4;
   int naccept_step= 4;
   int npt_step=     4;
