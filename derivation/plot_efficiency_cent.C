@@ -91,7 +91,7 @@ nt->Draw("eff_rmin:rmin_reco>>p_rmin",Form("weight*( abs(eta)<2.4&& pt>%.1f && p
 //###############################################Efficiencies after Correction###########################################################################
 ///////////////cent dependent///////////////////
 TProfile * p_cent_corr= new TProfile("p_cent_corr",";centrality bin;efficiency",100,0,200);
-nt->Draw("(1/eff)*(mpt>0 && trackselect):cent>>p_cent_corr",Form("weight*abs(eta)<2.4&& pt>%.1f && pt<%.1f",bin_pt_min,bin_pt_max));
+nt->Draw("(1/eff)*(mpt>0 && trackselect):cent>>p_cent_corr",Form("weight*(abs(eta)<2.4&& pt>%.1f && pt<%.1f)",bin_pt_min,bin_pt_max));
 
 p_cent_corr->SetMaximum(1.1);
 p_cent_corr->SetMinimum(0.9);
@@ -107,21 +107,6 @@ p_pt_corr->SetMinimum(0.9);
 
 TProfile2D * p_eta_phi_corr = new TProfile2D("p_eta_phi_corr",";#phi;#eta;",50,-TMath::Pi(),TMath::Pi(),50,-2.4,2.4);
 nt->Draw("(1/eff)*(mpt>0 && trackselect):eta:phi>>p_eta_phi_corr",Form("weight*( abs(eta)<2.4&& pt>%.1f && pt<%.1f)",bin_pt_min,bin_pt_max));
-
-///////////eta dependent/////////////////////////
-TProfile * p_eta_corr = new TProfile("p_eta_corr",";#eta;efficiency",50,-2.4,2.4);
-nt->Draw("(1/eff)*(mpt>0 && trackselect):eta>>p_eta_corr",Form("weight*(abs(eta)<2.4&& pt>%.1f && pt<%.1f)",bin_pt_min,bin_pt_max));
-
-p_eta_corr->SetMaximum(1.1);
-p_eta_corr->SetMinimum(0.9);
-
-////////////phi dependent/////////////////////////
-TProfile * p_phi_corr = new TProfile("p_phi_corr",";#phi;efficiency",50,-TMath::Pi(),TMath::Pi());
-nt->Draw("(1/eff)*(mpt>0 && trackselect):phi>>p_phi_corr",Form("weight*(abs(eta)<2.4&& pt>%.1f && pt<%.1f)",bin_pt_min,bin_pt_max));
-
-p_phi_corr->SetMaximum(1.1);
-p_phi_corr->SetMinimum(0.9);
-p_phi_corr->Draw();
 
 ////////////rmin dependent/////////////////////////
 TProfile * p_rmin_corr = new TProfile("p_rmin_corr",";r_{min};efficiency",n_rmin_bins,rmin_bins);

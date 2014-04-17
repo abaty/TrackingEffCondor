@@ -224,8 +224,8 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
    float eff_accept=1;
    float eff_pt=1;
    float eff_rmin=1;
-   float rmin_reco=99;
-   float rmin_gen=99;
+   float rmin_reco=-99;
+   float rmin_gen=-99;
 
   
    for(int iaccept=0;iaccept<nstep_accept;iaccept++){
@@ -250,7 +250,7 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
    }
    
    for(int irmin=0;irmin<nstep_rmin;irmin++){
-     eff_rmin=eff_rmin*p_eff_rmin[irmin]->GetBinContent(p_eff_rmin[irmin]->GetXaxis()->FindBin(rmin_reco));
+     if(rmin_reco >= 0) eff_rmin=eff_rmin*p_eff_rmin[irmin]->GetBinContent(p_eff_rmin[irmin]->GetXaxis()->FindBin(rmin_reco));
    }
    
    float eff=eff_accept*eff_cent*eff_pt*eff_rmin;
