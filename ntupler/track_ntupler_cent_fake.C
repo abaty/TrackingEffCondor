@@ -108,7 +108,7 @@ void track_ntupler_cent_fake(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,
   float vz = fhi[ifile]->vz;
   float vertexShift =0.0966;
 
-  if(cent*0.5<bin_cent_min || cent*0.5>=bin_cent_max || abs(vz-vertexShift)>15 || !(pcoll[ifile])) continue;
+  if(cent*0.5<bin_cent_min || cent*0.5>=bin_cent_max || fabs(vz-vertexShift)>15 || !(pcoll[ifile])) continue;
   float weight = 0;
   float pthat_weight = 0;
   float cent_weight = 0;  
