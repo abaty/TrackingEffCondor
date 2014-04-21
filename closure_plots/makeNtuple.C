@@ -55,19 +55,19 @@ void makeNtuple(){
  centWeights = (TH1F*)centWeightsFile->Get("centrality_weight");
  
  //pt bins for track efficiency correction
- int npt_fake=14; 
- double ptmin_fake[]={0.5,0.5,0.5,0.5,0.5, 1, 1, 1,  1,  1, 3, 3,  3,  8};
- double ptmax_fake[]={  1,  1,  1,  1,  1, 3, 3, 3,  3,  3, 8, 8,  8,300};
+ int npt_fake=19; 
+ double ptmin_fake[]={0.5,0.5,0.5,0.5,0.5, 0.7,0.7,0.7,0.7,0.7,1, 1, 1,  1,  1, 3, 3,  3,  8};
+ double ptmax_fake[]={0.7,0.7,0.7,0.7,0.7,  1,  1,  1,  1,  1, 3, 3, 3,  3,  3, 8, 8,  8,300};
  
- int cent_min_fake[]={  0, 20, 40, 60,100, 0,20,40, 60,100, 0,20, 40,  0};
- int cent_max_fake[]={ 20, 40, 60,100,200,20,40,60,100,200,20,40,200,200};
+ int cent_min_fake[]={  0, 20, 40, 60,100,  0, 20, 40, 60,100, 0,20,40, 60,100, 0,20, 40,  0};
+ int cent_max_fake[]={ 20, 40, 60,100,200, 20, 40, 60,100,200,20,40,60,100,200,20,40,200,200};
  
- int npt_eff=14; 
- double ptmin_eff[]={0.5,0.5,0.5,0.5,0.5, 1, 1, 1,  1,  1, 3, 3,  3,  8};
- double ptmax_eff[]={  1,  1,  1,  1,  1, 3, 3, 3,  3,  3, 8, 8,  8,300};
+ int npt_eff=19; 
+ double ptmin_eff[]={0.5,0.5,0.5,0.5,0.5,0.7,0.7,0.7,0.7,0.7, 1, 1, 1,  1,  1, 3, 3,  3,  8};
+ double ptmax_eff[]={0.7,0.7,0.7,0.7,0.7,  1,  1,  1,  1,  1, 3, 3, 3,  3,  3, 8, 8,  8,300};
  
- int cent_min[]={  0, 20, 40, 60,100, 0,20,40, 60,100, 0,20, 40,  0};
- int cent_max[]={ 20, 40, 60,100,200,20,40,60,100,200,20,40,200,200};
+ int cent_min[]={  0, 20, 40, 60,100,  0, 20, 40, 60,100, 0,20,40, 60,100, 0,20, 40,  0};
+ int cent_max[]={ 20, 40, 60,100,200, 20, 40, 60,100,200,20,40,60,100,200,20,40,200,200};
   cout<<0<<endl;
 
  //getting histograms for track efficiency correction 
@@ -77,7 +77,7 @@ void makeNtuple(){
  TProfile *p_eff_pt[npt_eff]; 
  TProfile *p_eff_rmin[npt_eff]; 
  for(int ipt=0; ipt<npt_eff;ipt++){
-   f_eff[ipt]= new TFile(Form("../final_hists_Vs3Calo/eff_pt%d_%d_cent%d_%d_step_cent4accept4pt4rmin3.root",(int)ptmin_eff[ipt],(int)ptmax_eff[ipt],(int)(0.5*cent_min[ipt]),(int)(0.5*cent_max[ipt])));
+   f_eff[ipt]= new TFile(Form("../final_hists_Vs3Calo/eff_pt%d_%d_cent%d_%d.root",(int)ptmin_eff[ipt],(int)ptmax_eff[ipt],(int)(0.5*cent_min[ipt]),(int)(0.5*cent_max[ipt])));
    p_eff_cent[ipt]=(TProfile*)f_eff[ipt]->Get("p_eff_cent");
    p_eff_pt[ipt]=(TProfile*)f_eff[ipt]->Get("p_eff_pt");
    p_eff_accept[ipt]=(TProfile2D*)f_eff[ipt]->Get("p_eff_acceptance");
@@ -90,8 +90,7 @@ void makeNtuple(){
  TProfile *p_fake_pt[npt_fake]; 
  TProfile *p_fake_rmin[npt_fake]; 
  for(int ipt=0; ipt<npt_fake;ipt++){
-   if(ipt<13)f_fake[ipt]= new TFile(Form("../final_hists_Vs3Calo/fake_pt%d_%d_cent%d_%d_step_cent4accept4pt4rmin3.root",(int)ptmin_fake[ipt],(int)ptmax_fake[ipt],(int)(0.5*cent_min_fake[ipt]),(int)(0.5*cent_max_fake[ipt])));
-   else f_fake[ipt]= new TFile(Form("../final_hists_Vs3Calo/fake_pt%d_%d_cent%d_%d_step_cent4accept4pt4rmin4.root",(int)ptmin_fake[ipt],(int)ptmax_fake[ipt],(int)(0.5*cent_min_fake[ipt]),(int)(0.5*cent_max_fake[ipt])));
+   f_fake[ipt]= new TFile(Form("../final_hists_Vs3Calo/fake_pt%d_%d_cent%d_%d.root",(int)ptmin_fake[ipt],(int)ptmax_fake[ipt],(int)(0.5*cent_min_fake[ipt]),(int)(0.5*cent_max_fake[ipt])));
    p_fake_cent[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_cent");
    p_fake_pt[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_pt");
    p_fake_accept[ipt]=(TProfile2D*)f_fake[ipt]->Get("p_fake_acceptance");
@@ -154,7 +153,7 @@ void makeNtuple(){
    float pt=ftrk[ifile]->pPt[itrk];
    float mpt=ftrk[ifile]->mtrkPt[itrk];
    float phi=ftrk[ifile]->pPhi[itrk];
-   float rmin=99;
+   float rmin=199;
  
    for(int ijet=0;ijet<fjet[ifile]->nref;ijet++){
      if(fabs(fjet[ifile]->jteta[ijet])>2 || fjet[ifile]->jtpt[ijet]<50) continue;
@@ -174,7 +173,7 @@ void makeNtuple(){
       eff_pt=p_eff_pt[ipt]->GetBinContent(p_eff_pt[ipt]->FindBin(pt));
       eff_cent=p_eff_cent[ipt]->GetBinContent(p_eff_cent[ipt]->FindBin(cent));
       eff_accept=p_eff_accept[ipt]->GetBinContent(p_eff_accept[ipt]->GetXaxis()->FindBin(phi),p_eff_accept[ipt]->GetYaxis()->FindBin(eta));
-      eff_rmin=p_eff_rmin[ipt]->GetBinContent(p_eff_rmin[ipt]->FindBin(rmin));
+      if(rmin<=100) eff_rmin=p_eff_rmin[ipt]->GetBinContent(p_eff_rmin[ipt]->FindBin(rmin));
      }     
    } 
 
@@ -199,7 +198,7 @@ void makeNtuple(){
    float phi=ftrk[ifile]->trkPhi[itrk];
    float trkfake=ftrk[ifile]->trkFake[itrk];
    float trackstatus=ftrk[ifile]->trkStatus[itrk];
-   float rmin=99;
+   float rmin=199;
 
    //find rmin; 
      for(int ijet=0;ijet<fjet[ifile]->nref;ijet++){
@@ -222,7 +221,7 @@ void makeNtuple(){
       eff_pt=p_eff_pt[ipt]->GetBinContent(p_eff_pt[ipt]->FindBin(pt));
       eff_cent=p_eff_cent[ipt]->GetBinContent(p_eff_cent[ipt]->FindBin(cent));
       eff_accept=p_eff_accept[ipt]->GetBinContent(p_eff_accept[ipt]->GetXaxis()->FindBin(phi),p_eff_accept[ipt]->GetYaxis()->FindBin(eta));
-      eff_rmin=p_eff_rmin[ipt]->GetBinContent(p_eff_rmin[ipt]->FindBin(rmin)); 
+      if(rmin<=100) eff_rmin=p_eff_rmin[ipt]->GetBinContent(p_eff_rmin[ipt]->FindBin(rmin)); 
      }     
    } 
    
@@ -231,7 +230,7 @@ void makeNtuple(){
       fake_pt=p_fake_pt[ipt]->GetBinContent(p_fake_pt[ipt]->FindBin(pt));
       fake_cent=p_fake_cent[ipt]->GetBinContent(p_fake_cent[ipt]->FindBin(cent));
       fake_accept=p_fake_accept[ipt]->GetBinContent(p_fake_accept[ipt]->GetXaxis()->FindBin(phi),p_fake_accept[ipt]->GetYaxis()->FindBin(eta));
-      fake_rmin=p_fake_rmin[ipt]->GetBinContent(p_fake_rmin[ipt]->FindBin(rmin));
+      if(rmin<=100) fake_rmin=p_fake_rmin[ipt]->GetBinContent(p_fake_rmin[ipt]->FindBin(rmin));
      }     
    }
 

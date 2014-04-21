@@ -101,7 +101,7 @@ nt->Draw("fake_rmin:rmin_reco>>p_fake_rmin",Form("weight*(trackselect && trkfake
 
 TFile *f_efficiency;
  if(is_final){
- f_efficiency= new TFile(Form("fake_pt%d_%d_cent%d_%d_step_cent%daccept%dpt%drmin%d.root",(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max,nstep_cent,nstep_accept,nstep_pt,nstep_rmin),"recreate");
+ f_efficiency= new TFile(Form("fake_pt%d_%d_cent%d_%d.root",(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max),"recreate");
 
  p_fake_cent->SetMarkerStyle(20);
  p_fake_pt->SetMarkerStyle(20);

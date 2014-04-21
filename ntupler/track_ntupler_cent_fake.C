@@ -143,7 +143,7 @@ void track_ntupler_cent_fake(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,
    float fake_accept=0;
    float fake_pt=0;
    float fake_rmin=0;
-   float rmin_reco=99;
+   float rmin_reco=199;
    float trkfake = 0;
    
    trkfake = ftrk[ifile]->trkFake[itrk];
@@ -164,7 +164,7 @@ void track_ntupler_cent_fake(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,
    }
    
    for(int irmin=0;irmin<nstep_rmin;irmin++){
-     fake_rmin=fake_rmin+p_eff_rmin[irmin]->GetBinContent(p_eff_rmin[irmin]->GetXaxis()->FindBin(rmin_reco));
+     if(rmin_reco<=100)fake_rmin=fake_rmin+p_eff_rmin[irmin]->GetBinContent(p_eff_rmin[irmin]->GetXaxis()->FindBin(rmin_reco));
    }
    
    float fake=fake_accept+fake_cent+fake_pt+fake_rmin;
