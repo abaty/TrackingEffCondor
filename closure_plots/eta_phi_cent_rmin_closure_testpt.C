@@ -112,17 +112,17 @@ void fixAxes(TH1D* histo){
   histo->GetXaxis()->SetTitleOffset(1.5);
 }
 
-void legFormat(TLegend* leg){
+void legFormat(TLegend* leg, float low, float high){
   leg->SetBorderSize(0);
   leg->SetFillStyle(0);
   leg->AddEntry((TObject*)0,"CMS Preliminary","");
-  leg->AddEntry((TObject*)0,"PYTHIA+HYDJET","");
+  leg->AddEntry((TObject*)0,Form("PYTHIA+HYDJET, %f<p_{T}<%f",low,high),"");
   leg->AddEntry((TObject*)0,"VsCalo jets, HI tracking","");
 }
 
 void drawClosure(TLine * l, TH1D * histo){
-histo->SetMaximum(1.1);
-histo->SetMinimum(0.9);
+histo->SetMaximum(1.5);
+histo->SetMinimum(0.5);
 histo->GetYaxis()->SetTitle("Closure");
 histo->Draw();
 fixAxes(histo);
@@ -145,7 +145,9 @@ const float x1[4]= {0.55  ,0.3, 0.5 ,0.55};
 const float y1[4]= {0.65 ,0.1, 0.65 ,0.65};
 const float x2[4]= {0.95 ,0.8, 0.9 ,0.95};
 const float y2[4]= {0.95 ,0.4, 0.95 ,0.95};
- 
+float pt_low = 0.85;
+float pt_high= 1.0; 
+
 
 TH1D::SetDefaultSumw2();
 TFile * f= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_100ksmall.root");
@@ -174,9 +176,9 @@ TH1D * h_gen = new  TH1D("h_gen",Form(";%s;N",label[m]),bins[m],lowerBin[m],high
 TH1D * h_gen_select = new  TH1D("h_gen_select",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
 TH1D * h_gen_matched_select_corr = new TH1D("h_gen_matched_select_corr",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
 
-nt_particle->Draw(Form("%s>>h_gen",var[m]),"weight*(pt>0.5)");
-nt_particle->Draw(Form("%s>>h_gen_select",var[m]),"weight*(trackselect && pt>0.5)");
-nt_particle->Draw(Form("%s>>h_gen_matched_select_corr",var[m]),"(1/eff)*weight*(trackselect && pt>0.5)");
+nt_particle->Draw(Form("%s>>h_gen",var[m]),Form("weight*(pt>%f && pt<%f)",pt_low,pt_high));
+nt_particle->Draw(Form("%s>>h_gen_select",var[m]),Form("weight*(trackselect && pt>%f && pt<%f)",pt_low,pt_high));
+nt_particle->Draw(Form("%s>>h_gen_matched_select_corr",var[m]),Form("(1/eff)*weight*(trackselect && pt>%f && pt<%f)",pt_low,pt_high));
 
 h_gen->SetMarkerColor(1);
 h_gen->SetMarkerStyle(25);
@@ -191,7 +193,7 @@ if(m==1) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
 if(m==2) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
 if(m==3) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
 
-legFormat(leg2);
+legFormat(leg2,pt_low,pt_high);
 leg2->AddEntry(h_gen,"gen","p");
 leg2->AddEntry(h_gen_select,"matched gen","p");
 leg2->AddEntry(h_gen_matched_select_corr,"corrected matched gen","p");
@@ -223,17 +225,17 @@ if(m==3) l = new TLine(lowerBin[m],1,higherBin[m],1);
 
 drawClosure(l,hgen_corr_rat);
 
-c2->SaveAs(Form("compare_gen_select_corr_%s.png",var[m]));
-c2->SaveAs(Form("compare_gen_select_corr_%s.pdf",var[m]));
+c2->SaveAs(Form("compare_gen_select_corr_%spt%d%d.png",var[m],(int)(10*pt_low),(int)(10*pt_high)));
+c2->SaveAs(Form("compare_gen_select_corr_%spt%d%d.pdf",var[m],(int)(10*pt_low),(int)(10*pt_high)));
 
 //****************************************************************************
 //fake correction
 TH1D * h_reco = new  TH1D("h_reco",Form(";%s;N",label[m]),bins[m],lowerBin[m],higherBin[m]);
 TH1D * h_reco_matched = new  TH1D("h_reco_matched",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
 TH1D * h_reco_fakecorr = new TH1D("h_reco_fakecorr",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
-nt_track->Draw(Form("%s>>h_reco",var[m]),"weight*(trackselect && pt>0.5)"); 
-nt_track->Draw(Form("%s>>h_reco_matched",var[m]),"weight*(trackselect && !trkfake && pt>0.5)"); 
-nt_track->Draw(Form("%s>>h_reco_fakecorr",var[m]),"(1-fake)*weight*(trackselect && pt>0.5)"); 
+nt_track->Draw(Form("%s>>h_reco",var[m]),Form("weight*(trackselect && pt>%f && pt<%f)",pt_low,pt_high)); 
+nt_track->Draw(Form("%s>>h_reco_matched",var[m]),Form("weight*(trackselect && !trkfake && pt>%f && pt<%f)",pt_low,pt_high)); 
+nt_track->Draw(Form("%s>>h_reco_fakecorr",var[m]),Form("(1-fake)*weight*(trackselect && pt>%f && pt<%f)",pt_low,pt_high)); 
 
 h_reco_matched->SetMarkerColor(1);
 h_reco_matched->SetMarkerStyle(25);
@@ -246,7 +248,7 @@ if(m==1) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
 if(m==2) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
 if(m==3) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
 
-legFormat(leg3);
+legFormat(leg3,pt_low,pt_high);
 leg3->AddEntry(h_reco,"reco","p");
 leg3->AddEntry(h_reco_matched,"matched reco","p");
 leg3->AddEntry(h_reco_fakecorr,"fake corrected reco","p");
@@ -272,15 +274,15 @@ hreco_fakecorr_rat->Divide(h_reco_matched);
 c3->cd(2);
 drawClosure(l,hreco_fakecorr_rat);
 
-c3->SaveAs(Form("compare_reco_fake_corr_%s.png",var[m]));
-c3->SaveAs(Form("compare_reco_fake_corr_%s.pdf",var[m]));
+c3->SaveAs(Form("compare_reco_fake_corr_%spt%d%d.png",var[m],(int)(10*pt_low),(int)(10*pt_high)));
+c3->SaveAs(Form("compare_reco_fake_corr_%spt%d%d.pdf",var[m],(int)(10*pt_low),(int)(10*pt_high)));
 
 
 
 //********************************************************************
 //full correction
 TH1D * h_reco_fakecorr_effcorr = new TH1D("h_reco_fakecorr_effcorr",Form(";%s;N",label[m]),bins[m],lowerBin[m],higherBin[m]);
-nt_track->Draw(Form("%s>>h_reco_fakecorr_effcorr",var[m]),"((1-fake)/eff)*weight*(trackselect && pt>0.5)"); 
+nt_track->Draw(Form("%s>>h_reco_fakecorr_effcorr",var[m]),Form("((1-fake)/eff)*weight*(trackselect && pt>%f && pt<%f)",pt_low,pt_high)); 
 
 h_reco_fakecorr_effcorr->SetMarkerColor(kRed);
 h_reco_fakecorr_effcorr->SetLineColor(kRed);
@@ -290,7 +292,7 @@ if(m==1) leg4 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
 if(m==2) leg4 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
 if(m==3) leg4 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
 
-legFormat(leg4);
+legFormat(leg4,pt_low,pt_high);
 leg4->AddEntry(h_gen,"gen","p");
 leg4->AddEntry(h_reco,"reco","p");
 leg4->AddEntry(h_reco_fakecorr_effcorr,"reco corr","p");
@@ -310,6 +312,6 @@ h_genreco_fullcorr->Divide(h_gen);
 c4->cd(2);
 drawClosure(l,h_genreco_fullcorr);
 
-c4->SaveAs(Form("compare_select_fullcorr_%s.png",var[m]));
-c4->SaveAs(Form("compare_select_fullcorr_%s.pdf",var[m]));
+c4->SaveAs(Form("compare_select_fullcorr_%spt%d%d.png",var[m],(int)(10*pt_low),(int)(10*pt_high)));
+c4->SaveAs(Form("compare_select_fullcorr_%spt%d%d.pdf",var[m],(int)(10*pt_low),(int)(10*pt_high)));
 }

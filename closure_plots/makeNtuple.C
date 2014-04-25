@@ -24,16 +24,22 @@
 
 void makeNtuple(){
  TH1D::SetDefaultSumw2();
- 
- float pthatWeight[5] = {4.41885e-01,3.0133e-02,3.24954e-04,1.03072e-04,2.41754e-05};
+
+//all statistics 
+ //float pthatWeight[5] = {4.29284e-01,2.99974e-02,3.38946e-4,1.06172e-4,2.79631e-5};
+//100k events
+ float pthatWeight[5] = {0.429284,0.0299974,0.000949812,0.000232709,7.61038e-05};
+ float vertexShift = 0.501501;
+
+ const int nevents = 10000;
 
  TString directory="/mnt/hadoop/cms/store/user/velicanu/";
  const char* infname[5];
- infname[0] = "/HydjetDrum_Pyquen_Dijet30_FOREST_Track8_Jet24_FixedPtHat_v0_mergedpkurt/0";
- infname[1] = "/HydjetDrum_Pyquen_Dijet50_FOREST_Track8_Jet24_FixedPtHat_v0_mergedpkurt/0";
- infname[2] = "/HydjetDrum_Pyquen_Dijet80_FOREST_Track8_Jet24_FixedPtHat_v0_mergedpkurt/0";
- infname[3] = "/HydjetDrum_Pyquen_Dijet100_FOREST_Track8_Jet24_FixedPtHat_v0/0";
- infname[4] = "/HydjetDrum_Pyquen_Dijet120_FOREST_Track8_Jet24_FixedPtHat_v0/0";
+ infname[0] = "/HydjetDrum_Pyquen_Dijet30_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
+ infname[1] = "/HydjetDrum_Pyquen_Dijet50_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
+ infname[2] = "/HydjetDrum_Pyquen_Dijet80_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
+ infname[3] = "/HydjetDrum_Pyquen_Dijet100_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
+ infname[4] = "/HydjetDrum_Pyquen_Dijet120_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
 
  trackTree * ftrk[5];
  HiTree * fhi[5];
@@ -55,19 +61,19 @@ void makeNtuple(){
  centWeights = (TH1F*)centWeightsFile->Get("centrality_weight");
  
  //pt bins for track efficiency correction
- int npt_fake=19; 
- double ptmin_fake[]={0.5,0.5,0.5,0.5,0.5, 0.7,0.7,0.7,0.7,0.7,1, 1, 1,  1,  1, 3, 3,  3,  8};
- double ptmax_fake[]={0.7,0.7,0.7,0.7,0.7,  1,  1,  1,  1,  1, 3, 3, 3,  3,  3, 8, 8,  8,300};
+ int npt_fake=29; 
+ double ptmin_fake[]={0.5 ,0.5 ,0.5 ,0.5 ,0.5 ,0.55 ,0.55 ,0.55 ,0.55 ,0.55 ,0.65,0.65,0.65,0.65,0.65,0.8,0.8,0.8,0.8,0.8,1 ,1 ,1 ,1 ,1  ,3 ,3 ,3  ,8};
+ double ptmax_fake[]={0.55,0.55,0.55,0.55,0.55,0.65 ,0.65 ,0.65 ,0.65 ,0.65 ,0.8 ,0.8 ,0.8 ,0.8 ,0.8 ,1  ,1  ,1  ,1  ,1  ,3 ,3 ,3 ,3 ,3  ,8 ,8 ,8  ,300};
  
- int cent_min_fake[]={  0, 20, 40, 60,100,  0, 20, 40, 60,100, 0,20,40, 60,100, 0,20, 40,  0};
- int cent_max_fake[]={ 20, 40, 60,100,200, 20, 40, 60,100,200,20,40,60,100,200,20,40,200,200};
+ int cent_min_fake[]={0   ,10  ,20  ,30  ,50  ,0    ,10   ,20   ,30   ,50   ,0   ,10  ,20  ,30  ,50  ,0  ,10 ,20 ,30 ,50 ,0 ,10,20,30,50 ,0 ,10,20 ,0};
+ int cent_max_fake[]={10  ,20  ,30  ,50  ,100 ,10   ,20   ,30   ,50   ,100  ,10  ,20  ,30  ,50  ,100 ,10 ,20 ,30 ,50 ,100,10,20,30,50,100,10,20,100,100};
  
- int npt_eff=19; 
- double ptmin_eff[]={0.5,0.5,0.5,0.5,0.5,0.7,0.7,0.7,0.7,0.7, 1, 1, 1,  1,  1, 3, 3,  3,  8};
- double ptmax_eff[]={0.7,0.7,0.7,0.7,0.7,  1,  1,  1,  1,  1, 3, 3, 3,  3,  3, 8, 8,  8,300};
+ int npt_eff=29; 
+ double ptmin_eff[]={0.5 ,0.5 ,0.5 ,0.5 ,0.5 ,0.55 ,0.55 ,0.55 ,0.55 ,0.55 ,0.65,0.65,0.65,0.65,0.65,0.8,0.8,0.8,0.8,0.8,1 ,1 ,1 ,1 ,1  ,3 ,3 ,3  ,8};
+ double ptmax_eff[]={0.55,0.55,0.55,0.55,0.55,0.65 ,0.65 ,0.65 ,0.65 ,0.65 ,0.8 ,0.8 ,0.8 ,0.8 ,0.8 ,1  ,1  ,1  ,1  ,1  ,3 ,3 ,3 ,3 ,3  ,8 ,8 ,8  ,300};
  
- int cent_min[]={  0, 20, 40, 60,100,  0, 20, 40, 60,100, 0,20,40, 60,100, 0,20, 40,  0};
- int cent_max[]={ 20, 40, 60,100,200, 20, 40, 60,100,200,20,40,60,100,200,20,40,200,200};
+ int cent_min[]={0   ,10  ,20  ,30  ,50  ,0    ,10   ,20   ,30   ,50   ,0   ,10  ,20  ,30  ,50  ,0  ,10 ,20 ,30 ,50 ,0 ,10,20,30,50 ,0 ,10,20 ,0};
+ int cent_max[]={10  ,20  ,30  ,50  ,100 ,10   ,20   ,30   ,50   ,100  ,10  ,20  ,30  ,50  ,100 ,10 ,20 ,30 ,50 ,100,10,20,30,50,100,10,20,100,100};
   cout<<0<<endl;
 
  //getting histograms for track efficiency correction 
@@ -77,7 +83,7 @@ void makeNtuple(){
  TProfile *p_eff_pt[npt_eff]; 
  TProfile *p_eff_rmin[npt_eff]; 
  for(int ipt=0; ipt<npt_eff;ipt++){
-   f_eff[ipt]= new TFile(Form("../final_hists_Vs3Calo/eff_pt%d_%d_cent%d_%d.root",(int)ptmin_eff[ipt],(int)ptmax_eff[ipt],(int)(0.5*cent_min[ipt]),(int)(0.5*cent_max[ipt])));
+   f_eff[ipt]= new TFile(Form("../final_hists_temp/eff_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_eff[ipt]),(int)(100*ptmax_eff[ipt]),(int)(0.5*cent_min[ipt]),(int)(0.5*cent_max[ipt])));
    p_eff_cent[ipt]=(TProfile*)f_eff[ipt]->Get("p_eff_cent");
    p_eff_pt[ipt]=(TProfile*)f_eff[ipt]->Get("p_eff_pt");
    p_eff_accept[ipt]=(TProfile2D*)f_eff[ipt]->Get("p_eff_acceptance");
@@ -90,7 +96,7 @@ void makeNtuple(){
  TProfile *p_fake_pt[npt_fake]; 
  TProfile *p_fake_rmin[npt_fake]; 
  for(int ipt=0; ipt<npt_fake;ipt++){
-   f_fake[ipt]= new TFile(Form("../final_hists_Vs3Calo/fake_pt%d_%d_cent%d_%d.root",(int)ptmin_fake[ipt],(int)ptmax_fake[ipt],(int)(0.5*cent_min_fake[ipt]),(int)(0.5*cent_max_fake[ipt])));
+   f_fake[ipt]= new TFile(Form("../final_hists_temp/fake_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_fake[ipt]),(int)(100*ptmax_fake[ipt]),(int)(0.5*cent_min_fake[ipt]),(int)(0.5*cent_max_fake[ipt])));
    p_fake_cent[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_cent");
    p_fake_pt[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_pt");
    p_fake_accept[ipt]=(TProfile2D*)f_fake[ipt]->Get("p_fake_acceptance");
@@ -98,7 +104,7 @@ void makeNtuple(){
  }
 
  //output file and tree
- TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_big.root","recreate");
+ TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_100ksmall.root","recreate");
  
  std::string particleVars="pt:matchedpt:eta:phi:rmin:trackselect:cent:eff:cent_weight:pthat_weight:weight";
  TNtuple *nt_particle = new TNtuple("nt_particle","",particleVars.data());
@@ -116,7 +122,8 @@ void makeNtuple(){
  for(int ifile=0; ifile<5; ifile++){
  std::cout<<ifile<<std::endl;
  int nentries = ftrk[ifile]->GetEntriesFast();
- for(int jentry=0;jentry<nentries;jentry++){
+ if(nevents<nentries) nentries = nevents; 
+for(int jentry=0;jentry<nentries;jentry++){
  //for(int jentry=0;jentry<5000;jentry++){
   if((jentry%1000)==0) std::cout<<jentry<<"/"<<nentries<<std::endl;
   ftrk[ifile]->GetEntry(jentry);
@@ -126,7 +133,6 @@ void makeNtuple(){
 
   float cent=fhi[ifile]->hiBin;
   float vz = fhi[ifile]->vz;
-  float vertexShift =0.0966;
  
   if(fabs(vz-vertexShift)>15 || !(pcoll[ifile])) continue;
 

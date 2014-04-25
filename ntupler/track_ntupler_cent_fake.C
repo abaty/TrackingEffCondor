@@ -27,15 +27,22 @@ void track_ntupler_cent_fake(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,
  TH1D::SetDefaultSumw2();
 
  //converted to nb
- float pthatWeight[5] = {4.41885e-01,3.0133e-02,3.24954e-04,1.03072e-04,2.41754e-05};
- 
+ //full stats
+  //float pthatWeight[5] = {4.29284e-01,2.99974e-02,3.38946e-4,1.06172e-4,2.79631e-5};
+ //100k stats
+  float pthatWeight[5] = {0.429284,0.0299974,0.000949812,0.000232709,7.61038e-05}; 
+  float vertexShift = 0.501501;
+//150k stats
+ //float pthatWeight[5] = {0.429284,0.0299974,0.000640323,0.000155783,5.07186e-05};
+ //float vertexShift = 0.501419;
+
  TString directory="/mnt/hadoop/cms/store/user/velicanu/";
  const char* infname[5];
- infname[0] = "/HydjetDrum_Pyquen_Dijet30_FOREST_Track8_Jet24_FixedPtHat_v0_mergedpkurt/0"; 
- infname[1] = "/HydjetDrum_Pyquen_Dijet50_FOREST_Track8_Jet24_FixedPtHat_v0_mergedpkurt/0";
- infname[2] = "/HydjetDrum_Pyquen_Dijet80_FOREST_Track8_Jet24_FixedPtHat_v0_mergedpkurt/0";
- infname[3] = "/HydjetDrum_Pyquen_Dijet100_FOREST_Track8_Jet24_FixedPtHat_v0/0";
- infname[4] = "/HydjetDrum_Pyquen_Dijet120_FOREST_Track8_Jet24_FixedPtHat_v0/0";
+ infname[0] = "/HydjetDrum_Pyquen_Dijet30_FOREST_Track8_Jet24_FixedPtHatJES_v0/0"; 
+ infname[1] = "/HydjetDrum_Pyquen_Dijet50_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
+ infname[2] = "/HydjetDrum_Pyquen_Dijet80_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
+ infname[3] = "/HydjetDrum_Pyquen_Dijet100_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
+ infname[4] = "/HydjetDrum_Pyquen_Dijet120_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
 
  trackTree * ftrk[5];
  HiTree * fhi[5];
@@ -94,8 +101,9 @@ void track_ntupler_cent_fake(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,
   for(int ifile=0; ifile<5; ifile++){
   std::cout<<ifile<<std::endl;
   int nentries = ftrk[ifile]->GetEntriesFast();
+  
+  if(nevents<nentries) nentries = nevents;
   for(int jentry=0;jentry<nentries;jentry++){
-  //for(int jentry=0;jentry<nevents;jentry++){
   if((jentry%10000)==0) std::cout<<jentry<<"/"<<nentries<< "   File:" << ifile <<std::endl;
 
   ftrk[ifile]->GetEntry(jentry);
@@ -106,7 +114,6 @@ void track_ntupler_cent_fake(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,
 //vertexShift can be used to move the center of the vertex distribution if needed
   float cent=fhi[ifile]->hiBin;
   float vz = fhi[ifile]->vz;
-  float vertexShift =0.0966;
 
   if(cent*0.5<bin_cent_min || cent*0.5>=bin_cent_max || fabs(vz-vertexShift)>15 || !(pcoll[ifile])) continue;
   float weight = 0;

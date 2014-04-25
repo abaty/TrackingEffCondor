@@ -4,16 +4,16 @@
 //i is the iteration being run by the condor job
 void run(int i = 0){
  
-  float ptmin[19]=   {0.5,0.5,0.5,0.5,0.5,0.7,0.7,0.7,0.7,0.7,1 ,1 ,1 ,1 ,1  ,3 ,3 ,3  ,8};
-  float ptmax[19]=   {0.7,0.7,0.7,0.7,0.7,1  ,1  ,1  ,1  ,1  ,3 ,3 ,3 ,3 ,3  ,8 ,8 ,8  ,300};
-  float centmin[19]= {0  ,10 ,20 ,30 ,50 ,0  ,10 ,20 ,30 ,50 ,0 ,10,20,30,50 ,0 ,10,20 ,0};
-  float centmax[19]= {10 ,20 ,30 ,50 ,100,10 ,20 ,30 ,50 ,100,10,20,30,50,100,10,20,100,100};
+  double ptmin[29]=   {0.5 ,0.5 ,0.5 ,0.5 ,0.5 ,0.55 ,0.55 ,0.55 ,0.55 ,0.55 ,0.65,0.65,0.65,0.65,0.65,0.8,0.8,0.8,0.8,0.8,1 ,1 ,1 ,1 ,1  ,3 ,3 ,3  ,8};
+  double ptmax[29]=   {0.55,0.55,0.55,0.55,0.55,0.65 ,0.65 ,0.65 ,0.65 ,0.65 ,0.8 ,0.8 ,0.8 ,0.8 ,0.8 ,1  ,1  ,1  ,1  ,1  ,3 ,3 ,3 ,3 ,3  ,8 ,8 ,8  ,300};
+  double centmin[29]= {0   ,10  ,20  ,30  ,50  ,0    ,10   ,20   ,30   ,50   ,0   ,10  ,20  ,30  ,50  ,0  ,10 ,20 ,30 ,50 ,0 ,10,20,30,50 ,0 ,10,20 ,0};
+  double centmax[29]= {10  ,20  ,30  ,50  ,100 ,10   ,20   ,30   ,50   ,100  ,10  ,20  ,30  ,50  ,100 ,10 ,20 ,30 ,50 ,100,10,20,30,50,100,10,20,100,100};
 
-  int nevents =     1000;
+  int nevents =     100000;
   int ncent_step=   4;
   int naccept_step= 4;
   int npt_step=     4;
-  int nrmin_step [19] = {3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4};
+  int nrmin_step [29] = {3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4};
 
   int icent_step=0;
   int iaccept_step=0;
@@ -43,7 +43,13 @@ int main(int argc, char *argv[]){
     std::cout << "Usage: runcorr <condor_iter>" << std::endl;
     return 1;
   }
-  run(std::atoi(argv[1]));
+
+  //for resubmitting
+  int argument = std::atoi(argv[1]);
+  //if(argument==0) argument=19;
+  //else if(argument==1) argument=28;
+
+  run(argument);
   return 0;
 }
 

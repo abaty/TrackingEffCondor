@@ -101,7 +101,7 @@ nt->Draw("eff_rmin:rmin_reco>>p_eff_rmin",Form("weight*(abs(eta)<2.4&& pt>%.1f &
 
 TFile *f_efficiency;
  if(is_final){
- f_efficiency= new TFile(Form("eff_pt%d_%d_cent%d_%d.root",(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max),"recreate");
+ f_efficiency= new TFile(Form("eff_pt%d_%d_cent%d_%d.root",(int)(100*bin_pt_min),(int)(100*bin_pt_max),(int)bin_cent_min,(int)bin_cent_max),"recreate");
 
  p_eff_cent->SetMarkerStyle(20);
  p_eff_pt->SetMarkerStyle(20);
