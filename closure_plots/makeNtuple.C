@@ -83,7 +83,7 @@ void makeNtuple(){
  TProfile *p_eff_pt[npt_eff]; 
  TProfile *p_eff_rmin[npt_eff]; 
  for(int ipt=0; ipt<npt_eff;ipt++){
-   f_eff[ipt]= new TFile(Form("../final_hists_temp/eff_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_eff[ipt]),(int)(100*ptmax_eff[ipt]),(int)(0.5*cent_min[ipt]),(int)(0.5*cent_max[ipt])));
+   f_eff[ipt]= new TFile(Form("../final_hists_temp1/eff_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_eff[ipt]),(int)(100*ptmax_eff[ipt]),(int)(cent_min[ipt]),(int)(cent_max[ipt])));
    p_eff_cent[ipt]=(TProfile*)f_eff[ipt]->Get("p_eff_cent");
    p_eff_pt[ipt]=(TProfile*)f_eff[ipt]->Get("p_eff_pt");
    p_eff_accept[ipt]=(TProfile2D*)f_eff[ipt]->Get("p_eff_acceptance");
@@ -96,7 +96,7 @@ void makeNtuple(){
  TProfile *p_fake_pt[npt_fake]; 
  TProfile *p_fake_rmin[npt_fake]; 
  for(int ipt=0; ipt<npt_fake;ipt++){
-   f_fake[ipt]= new TFile(Form("../final_hists_temp/fake_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_fake[ipt]),(int)(100*ptmax_fake[ipt]),(int)(0.5*cent_min_fake[ipt]),(int)(0.5*cent_max_fake[ipt])));
+   f_fake[ipt]= new TFile(Form("../final_hists_temp1/fake_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_fake[ipt]),(int)(100*ptmax_fake[ipt]),(int)(cent_min_fake[ipt]),(int)(cent_max_fake[ipt])));
    p_fake_cent[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_cent");
    p_fake_pt[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_pt");
    p_fake_accept[ipt]=(TProfile2D*)f_fake[ipt]->Get("p_fake_acceptance");
@@ -175,7 +175,7 @@ for(int jentry=0;jentry<nentries;jentry++){
    float eff_rmin=1;
 
    for(int ipt=0;ipt<npt_eff;ipt++){
-    if(pt>=ptmin_eff[ipt] && pt<ptmax_eff[ipt] && cent>=cent_min[ipt] && cent<cent_max[ipt]){
+    if(pt>=ptmin_eff[ipt] && pt<ptmax_eff[ipt] && 0.5*cent>=cent_min[ipt] && 0.5*cent<cent_max[ipt]){
       eff_pt=p_eff_pt[ipt]->GetBinContent(p_eff_pt[ipt]->FindBin(pt));
       eff_cent=p_eff_cent[ipt]->GetBinContent(p_eff_cent[ipt]->FindBin(cent));
       eff_accept=p_eff_accept[ipt]->GetBinContent(p_eff_accept[ipt]->GetXaxis()->FindBin(phi),p_eff_accept[ipt]->GetYaxis()->FindBin(eta));
@@ -223,7 +223,7 @@ for(int jentry=0;jentry<nentries;jentry++){
    fake_pt=fake_cent=fake_accept=fake_rmin=0;
 
    for(int ipt=0;ipt<npt_eff;ipt++){
-    if(pt>=ptmin_eff[ipt] && pt<ptmax_eff[ipt] && cent>=cent_min[ipt] && cent<cent_max[ipt]){
+    if(pt>=ptmin_eff[ipt] && pt<ptmax_eff[ipt] && 0.5*cent>=cent_min[ipt] && 0.5*cent<cent_max[ipt]){
       eff_pt=p_eff_pt[ipt]->GetBinContent(p_eff_pt[ipt]->FindBin(pt));
       eff_cent=p_eff_cent[ipt]->GetBinContent(p_eff_cent[ipt]->FindBin(cent));
       eff_accept=p_eff_accept[ipt]->GetBinContent(p_eff_accept[ipt]->GetXaxis()->FindBin(phi),p_eff_accept[ipt]->GetYaxis()->FindBin(eta));
@@ -232,7 +232,7 @@ for(int jentry=0;jentry<nentries;jentry++){
    } 
    
    for(int ipt=0;ipt<npt_fake;ipt++){
-    if(pt>=ptmin_fake[ipt] && pt<ptmax_fake[ipt] && cent>=cent_min_fake[ipt] && cent<cent_max_fake[ipt]){
+    if(pt>=ptmin_fake[ipt] && pt<ptmax_fake[ipt] && 0.5*cent>=cent_min_fake[ipt] && 0.5*cent<cent_max_fake[ipt]){
       fake_pt=p_fake_pt[ipt]->GetBinContent(p_fake_pt[ipt]->FindBin(pt));
       fake_cent=p_fake_cent[ipt]->GetBinContent(p_fake_cent[ipt]->FindBin(cent));
       fake_accept=p_fake_accept[ipt]->GetBinContent(p_fake_accept[ipt]->GetXaxis()->FindBin(phi),p_fake_accept[ipt]->GetYaxis()->FindBin(eta));
