@@ -120,10 +120,12 @@ void legFormat(TLegend* leg){
   leg->AddEntry((TObject*)0,"VsCalo jets, HI tracking","");
 }
 
-void drawClosure(TLine * l, TH1D * histo){
+void drawClosure(TLine * l, TH1D * histo, int i=0){
 histo->SetMaximum(1.1);
 histo->SetMinimum(0.9);
-histo->GetYaxis()->SetTitle("Closure");
+if(i==0) histo->GetYaxis()->SetTitle("Efficiency Closure");
+if(i==1)  histo->GetYaxis()->SetTitle("Fake Closure");
+if(i==2)   histo->GetYaxis()->SetTitle("Total Closure");
 histo->Draw();
 fixAxes(histo);
 l->Draw("same");
@@ -140,7 +142,7 @@ const char* var[5] = {"pt","cent","rmin","eta","phi"};
 const char* label[5] = {"p_{T}","cent","r_{min}","#eta","#phi"}; 
 
 TH1D::SetDefaultSumw2();
-TFile * f= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_big.root");
+TFile * f= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_150kfull.root","read");
 TTree * nt_track = (TTree*)f->Get("nt_track");
 TTree * nt_particle = (TTree*)f->Get("nt_particle");
 
@@ -154,14 +156,22 @@ double bin_pt_max=300;
 const int ny=50;
 double x[ny+1];
 double inix=log(bin_pt_min)/log(10);
-double delta=(log(bin_pt_max)-log(bin_pt_min))/(50*log(10));
+double delta=(log(bin_pt_max)-log(bin_pt_min))/(ny*log(10));
 for(int ix=0; ix<ny+1;ix++){
  x[ix]=pow(10,inix); 
  inix+=delta;
 }
+//Normalization factor
+
+TH1D * h_weight = new TH1D("h_weight","h_weight",100,0,100);
+nt_particle->Draw("weight>>h_weight","");
+double weight_integral = h_weight->Integral(1,100);
+std::cout << "normalization " <<weight_integral << std::endl;
+
+
 
 //eff correction
-TH1D * h_gen = new  TH1D("h_gen",";p_{T};N",ny,x);
+TH1D * h_gen = new  TH1D("h_gen",";p_{T};Arbitrary Units",ny,x);
 TH1D * h_gen_select = new  TH1D("h_gen_select",";p_{T};N_{evt}",ny,x);
 TH1D * h_gen_matched_select_corr = new TH1D("h_gen_matched_select_corr",";p_{T};N_{evt}",ny,x);
 
@@ -200,14 +210,14 @@ c2->cd(2);
 c2->cd(2)->SetLogx();
 
 TLine * l = new TLine(0.5,1,300,1);
-drawClosure(l,hgen_corr_rat);
+drawClosure(l,hgen_corr_rat,0);
 
 c2->SaveAs("compare_gen_select_corr.png");
 c2->SaveAs("compare_gen_select_corr.pdf");
 
 //****************************************************************************
 //fake correction
-TH1D * h_reco = new  TH1D("h_reco",";p_{T};N",ny,x);
+TH1D * h_reco = new  TH1D("h_reco",";p_{T};Arbitrary Units",ny,x);
 TH1D * h_reco_matched = new  TH1D("h_reco_matched",";p_{T};N_{evt}",ny,x);
 TH1D * h_reco_fakecorr = new TH1D("h_reco_fakecorr",";p_{T};N_{evt}",ny,x);
 nt_track->Draw("pt>>h_reco","weight*(trackselect && pt>0.5)"); 
@@ -241,7 +251,7 @@ hreco_fakecorr_rat->Divide(h_reco_matched);
 
 c3->cd(2);
 c3->cd(2)->SetLogx();
-drawClosure(l,hreco_fakecorr_rat);
+drawClosure(l,hreco_fakecorr_rat,1);
 
 c3->SaveAs("compare_reco_fake_corr.png");
 c3->SaveAs("compare_reco_fake_corr.pdf");
@@ -250,7 +260,9 @@ c3->SaveAs("compare_reco_fake_corr.pdf");
 
 //********************************************************************
 //full correction
-TH1D * h_reco_fakecorr_effcorr = new TH1D("h_reco_fakecorr_effcorr",";p_{T};N",ny,x);
+TFile * outfile = new TFile("pt_closure_PbPb.root","recreate");
+
+TH1D * h_reco_fakecorr_effcorr = new TH1D("h_reco_fakecorr_effcorr",";p_{T};Arbitrary Units",ny,x);
 nt_track->Draw("pt>>h_reco_fakecorr_effcorr","((1-fake)/eff)*weight*(trackselect && pt>0.5)"); 
 
 h_reco_fakecorr_effcorr->SetMarkerColor(kRed);
@@ -268,16 +280,24 @@ c4->cd(1);
 c4->cd(1)->SetLogx();
 c4->cd(1)->SetLogy();
 h_gen->Draw();
+h_gen->Write();
 h_reco->Draw("same");
+h_reco->Write();
+TH1D * reco_over_gen = (TH1D*)h_reco->Clone("reco_over_gen");
+reco_over_gen->Divide(h_gen);
+reco_over_gen->Write();
 h_reco_fakecorr_effcorr->Draw("same");
+h_reco_fakecorr_effcorr->Write();
 leg4->Draw("same");
 TH1D * h_genreco_fullcorr=(TH1D*)h_reco_fakecorr_effcorr->Clone("h_genreco_fullcorr");
 h_genreco_fullcorr->Divide(h_gen);
+h_genreco_fullcorr->Write();
 
 c4->cd(2);
 c4->cd(2)->SetLogx();
-drawClosure(l,h_genreco_fullcorr);
+drawClosure(l,h_genreco_fullcorr,2);
 
 c4->SaveAs("compare_select_fullcorr.png");
 c4->SaveAs("compare_select_fullcorr.pdf");
+//outfile->Close();
 }

@@ -87,7 +87,7 @@ void makeNtuple(){
  TProfile *p_eff_pt[npt_eff]; 
  TProfile *p_eff_rmin[npt_eff]; 
  for(int ipt=0; ipt<npt_eff;ipt++){
-   f_eff[ipt]= new TFile(Form("../final_hists/eff_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_eff[ipt]),(int)(100*ptmax_eff[ipt]),(int)(0.5*cent_min[ipt]),(int)(0.5*cent_max[ipt])));
+   f_eff[ipt]= new TFile(Form("../final_hists_temp/eff_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_eff[ipt]),(int)(100*ptmax_eff[ipt]),(int)(0.5*cent_min[ipt]),(int)(0.5*cent_max[ipt])));
    p_eff_cent[ipt]=(TProfile*)f_eff[ipt]->Get("p_eff_cent");
    p_eff_pt[ipt]=(TProfile*)f_eff[ipt]->Get("p_eff_pt");
    p_eff_accept[ipt]=(TProfile2D*)f_eff[ipt]->Get("p_eff_acceptance");
@@ -100,7 +100,7 @@ void makeNtuple(){
  TProfile *p_fake_pt[npt_fake]; 
  TProfile *p_fake_rmin[npt_fake]; 
  for(int ipt=0; ipt<npt_fake;ipt++){
-   f_fake[ipt]= new TFile(Form("../final_hists/fake_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_fake[ipt]),(int)(100*ptmax_fake[ipt]),(int)(0.5*cent_min_fake[ipt]),(int)(0.5*cent_max_fake[ipt])));
+   f_fake[ipt]= new TFile(Form("../final_hists_temp/fake_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_fake[ipt]),(int)(100*ptmax_fake[ipt]),(int)(0.5*cent_min_fake[ipt]),(int)(0.5*cent_max_fake[ipt])));
    p_fake_cent[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_cent");
    p_fake_pt[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_pt");
    p_fake_accept[ipt]=(TProfile2D*)f_fake[ipt]->Get("p_fake_acceptance");
@@ -108,12 +108,12 @@ void makeNtuple(){
  }
 
  //output file and tree
- TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_150kfull.root","recreate");
+ TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_150k_jets.root","recreate");
  
- std::string particleVars="pt:matchedpt:eta:phi:rmin:trackselect:cent:eff:cent_weight:pthat_weight:weight";
+ std::string particleVars="pt:matchedpt:eta:phi:rmin:trackselect:cent:eff:cent_weight:pthat_weight:weight:pt1:pt2:dphi:asym";
  TNtuple *nt_particle = new TNtuple("nt_particle","",particleVars.data());
  
- std::string trackVars="pt:eta:phi:rmin:trackselect:trackstatus:cent:eff:trkfake:fake:cent_weight:pthat_weight:weight";
+ std::string trackVars="pt:eta:phi:rmin:trackselect:trackstatus:cent:eff:trkfake:fake:cent_weight:pthat_weight:weight:pt1:pt2:dphi:asym";
  TNtuple *nt_track = new TNtuple("nt_track","",trackVars.data());
 
 
@@ -153,6 +153,86 @@ for(int jentry=0;jentry<nentries;jentry++){
   cent_weight = centWeights->GetBinContent(centWeights->FindBin(cent));
   weight = pthat_weight*cent_weight;
 
+
+  float pt1=-99;
+  float phi1=-99;
+  float eta1=-99;
+  float refpt1=-99;
+  float refeta1=-99;
+  float refphi1=-99;
+  float matchedpt1=-99;
+  float matchedR1=-99;
+  float trackMax1=-99;
+  float pt2=-99;
+  float phi2=-99;
+  float eta2=-99;
+  float refpt2=-99;
+  float refphi2=-99;
+  float refeta2=-99;
+  float matchedpt2=-99;
+  float matchedR2=-99;
+  float trackMax2=-99;
+  float pt3=-99;
+  float phi3=-99;
+  float eta3=-99;
+  float refpt3=-99;
+  float refeta3=-99;
+  float refphi3=-99;
+  float matchedpt3=-99;
+  float matchedR3=-99;
+  float trackMax3=-99;
+  float dphi=-99;
+  float ptratio=-99;
+  float asym = -1;
+
+std::vector<std::pair<double, std::pair<double,std::pair<double, std::pair<double,std::pair<double,std::pair<double,std::pair<double,std::pair<double,double> > > > > > > > > jets;
+  int njet=0;
+  for(int ijet=0;ijet<fjet[ifile]->nref;ijet++){
+
+   if(fabs(fjet[ifile]->jteta[ijet])>2) continue;
+   jets.push_back(std::make_pair(fjet[ifile]->jtpt[ijet],std::make_pair(fjet[ifile]->jteta[ijet], std::make_pair(fjet[ifile]->jtphi[ijet], std::make_pair(fjet[ifile]->refpt[ijet],std::make_pair(fjet[ifile]->refeta[ijet],std::make_pair(fjet[ifile]->refphi[ijet],std::make_pair(fjet[ifile]->matchedPt[ijet],std::make_pair(fjet[ifile]->matchedR[ijet],fjet[ifile]->trackMax[ijet])))))))));
+   njet++;
+  }
+
+  std::sort(jets.begin(),jets.end());
+  if(njet>0){
+   pt1=       jets[njet-1].first;
+   eta1=      jets[njet-1].second.first;
+   phi1=      jets[njet-1].second.second.first;
+   refpt1=    jets[njet-1].second.second.second.first;
+   refeta1=   jets[njet-1].second.second.second.second.first;
+   refphi1=   jets[njet-1].second.second.second.second.second.first;
+   matchedpt1=jets[njet-1].second.second.second.second.second.second.first;
+   matchedR1= jets[njet-1].second.second.second.second.second.second.second.first;
+   trackMax1= jets[njet-1].second.second.second.second.second.second.second.second;
+if(njet>1){
+    pt2=jets[njet-2].first;
+    eta2=jets[njet-2].second.first;
+    phi2=jets[njet-2].second.second.first;
+    refpt2=jets[njet-2].second.second.second.first;
+    refeta2=jets[njet-2].second.second.second.second.first;
+    refphi2=jets[njet-2].second.second.second.second.second.first;
+    matchedpt2=jets[njet-2].second.second.second.second.second.second.first;
+    matchedR2=jets[njet-2].second.second.second.second.second.second.second.first;
+    trackMax2=jets[njet-2].second.second.second.second.second.second.second.second;
+    dphi=acos(cos(phi1-phi2));
+    ptratio=pt2/pt1;
+    asym = (pt1-pt2)/(pt1+pt2);
+    if(njet>2){
+     pt3=jets[njet-3].first;
+     eta3=jets[njet-3].second.first;
+     phi3=jets[njet-3].second.second.first;
+     refpt3=jets[njet-3].second.second.second.first;
+     refeta3=jets[njet-3].second.second.second.second.first;
+     refphi3=jets[njet-3].second.second.second.second.second.first;
+     matchedpt3=jets[njet-3].second.second.second.second.second.second.first;
+     matchedR3=jets[njet-3].second.second.second.second.second.second.second.first;
+     trackMax3=jets[njet-3].second.second.second.second.second.second.second.second;
+    }
+   }
+  }
+
+
   //loop over tracks
   for(int itrk=0;itrk<ftrk[ifile]->nParticle;itrk++){
 
@@ -191,7 +271,7 @@ for(int jentry=0;jentry<nentries;jentry++){
    
    //fill in the output tree
   
-   float entry[]={pt,mpt,eta,phi,rmin,trackselect,cent,eff,cent_weight,pthat_weight,weight};
+   float entry[]={pt,mpt,eta,phi,rmin,trackselect,cent,eff,cent_weight,pthat_weight,weight,pt1,pt2,dphi,asym};
 
    nt_particle->Fill(entry);
 
@@ -257,7 +337,7 @@ for(int jentry=0;jentry<nentries;jentry++){
    //if(fake<0) fake=0;
 
    //fill in the output tree
-   float entry[]={pt,eta,phi,rmin,trackselect,trackstatus,cent,eff,trkfake,fake,cent_weight,pthat_weight,weight};
+   float entry[]={pt,eta,phi,rmin,trackselect,trackstatus,cent,eff,trkfake,fake,cent_weight,pthat_weight,weight,pt1,pt2,dphi,asym};
    nt_track->Fill(entry);
   }
  }

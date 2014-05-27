@@ -120,10 +120,12 @@ void legFormat(TLegend* leg, float low, float high){
   leg->AddEntry((TObject*)0,"VsCalo jets, HI tracking","");
 }
 
-void drawClosure(TLine * l, TH1D * histo){
+void drawClosure(TLine * l, TH1D * histo,int i =0){
 histo->SetMaximum(1.5);
 histo->SetMinimum(0.5);
-histo->GetYaxis()->SetTitle("Closure");
+if(i==0) histo->GetYaxis()->SetTitle("Efficiency Closure");
+if(i==1)  histo->GetYaxis()->SetTitle("Fake Closure");
+if(i==2)   histo->GetYaxis()->SetTitle("Total Closure");
 histo->Draw();
 fixAxes(histo);
 l->Draw("same");
@@ -145,12 +147,12 @@ const float x1[4]= {0.55  ,0.3, 0.5 ,0.55};
 const float y1[4]= {0.65 ,0.1, 0.65 ,0.65};
 const float x2[4]= {0.95 ,0.8, 0.9 ,0.95};
 const float y2[4]= {0.95 ,0.4, 0.95 ,0.95};
-float pt_low = 0.85;
-float pt_high= 1.0; 
+float pt_low = 0.52;
+float pt_high= 0.55; 
 
 
 TH1D::SetDefaultSumw2();
-TFile * f= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_100ksmall.root");
+TFile * f= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_100ksmall1.root");
 TTree * nt_track = (TTree*)f->Get("nt_track");
 TTree * nt_particle = (TTree*)f->Get("nt_particle");
 
@@ -223,10 +225,10 @@ if(m==1) l = new TLine(lowerBin[m],1,higherBin[m],1);
 if(m==2) l = new TLine(lowerBin[m],1,higherBin[m],1);
 if(m==3) l = new TLine(lowerBin[m],1,higherBin[m],1);
 
-drawClosure(l,hgen_corr_rat);
+drawClosure(l,hgen_corr_rat,0);
 
-c2->SaveAs(Form("compare_gen_select_corr_%spt%d%d.png",var[m],(int)(10*pt_low),(int)(10*pt_high)));
-c2->SaveAs(Form("compare_gen_select_corr_%spt%d%d.pdf",var[m],(int)(10*pt_low),(int)(10*pt_high)));
+c2->SaveAs(Form("compare_gen_select_corr_%spt%d%d.png",var[m],(int)(100*pt_low),(int)(100*pt_high)));
+c2->SaveAs(Form("compare_gen_select_corr_%spt%d%d.pdf",var[m],(int)(100*pt_low),(int)(100*pt_high)));
 
 //****************************************************************************
 //fake correction
@@ -272,10 +274,10 @@ TH1D * hreco_fakecorr_rat = (TH1D*)h_reco_fakecorr->Clone("hreco_fakecorr_rat");
 hreco_fakecorr_rat->Divide(h_reco_matched);
 
 c3->cd(2);
-drawClosure(l,hreco_fakecorr_rat);
+drawClosure(l,hreco_fakecorr_rat,1);
 
-c3->SaveAs(Form("compare_reco_fake_corr_%spt%d%d.png",var[m],(int)(10*pt_low),(int)(10*pt_high)));
-c3->SaveAs(Form("compare_reco_fake_corr_%spt%d%d.pdf",var[m],(int)(10*pt_low),(int)(10*pt_high)));
+c3->SaveAs(Form("compare_reco_fake_corr_%spt%d%d.png",var[m],(int)(100*pt_low),(int)(100*pt_high)));
+c3->SaveAs(Form("compare_reco_fake_corr_%spt%d%d.pdf",var[m],(int)(100*pt_low),(int)(100*pt_high)));
 
 
 
@@ -310,8 +312,8 @@ TH1D * h_genreco_fullcorr=(TH1D*)h_reco_fakecorr_effcorr->Clone("h_genreco_fullc
 h_genreco_fullcorr->Divide(h_gen);
 
 c4->cd(2);
-drawClosure(l,h_genreco_fullcorr);
+drawClosure(l,h_genreco_fullcorr,2);
 
-c4->SaveAs(Form("compare_select_fullcorr_%spt%d%d.png",var[m],(int)(10*pt_low),(int)(10*pt_high)));
-c4->SaveAs(Form("compare_select_fullcorr_%spt%d%d.pdf",var[m],(int)(10*pt_low),(int)(10*pt_high)));
+c4->SaveAs(Form("compare_select_fullcorr_%spt%d%d.png",var[m],(int)(100*pt_low),(int)(100*pt_high)));
+c4->SaveAs(Form("compare_select_fullcorr_%spt%d%d.pdf",var[m],(int)(100*pt_low),(int)(100*pt_high)));
 }

@@ -51,14 +51,14 @@ double rmin_bins[n_rmin_bins+1] = {0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.
 //###############################################Efficiencies after Correction###########################################################################
 ///////////////cent dependent///////////////////
 TProfile * p_cent_corr= new TProfile("p_cent_corr",";centrality bin;efficiency",100,0,200);
-nt->Draw("(1/eff)*(mpt>0 && trackselect):cent>>p_cent_corr",Form("weight*(abs(eta)<2.4&& pt>%.1f && pt<%.1f)",bin_pt_min,bin_pt_max));
+nt->Draw("(1/eff)*(mpt>0 && trackselect):cent>>p_cent_corr",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max));
 
 p_cent_corr->SetMaximum(1.1);
 p_cent_corr->SetMinimum(0.9);
 
 ////////////pt dependent////////////////////////
 TProfile * p_pt_corr= new TProfile("p_pt_corr",";p_{T}(GeV/c);efficiency",maxbin,x);
-nt->Draw("(1/eff)*(mpt>0 && trackselect):pt>>p_pt_corr",Form("weight*(abs(eta)<2.4&& pt>%.1f && pt<%.1f)",bin_pt_min,bin_pt_max));
+nt->Draw("(1/eff)*(mpt>0 && trackselect):pt>>p_pt_corr",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max));
 
 p_pt_corr->SetMaximum(1.1);
 p_pt_corr->SetMinimum(0.9);
@@ -66,11 +66,11 @@ p_pt_corr->SetMinimum(0.9);
 //////////acceptance dependent///////////////////
 
 TProfile2D * p_eta_phi_corr = new TProfile2D("p_eta_phi_corr",";#phi;#eta;",50,-TMath::Pi(),TMath::Pi(),50,-2.4,2.4);
-nt->Draw("(1/eff)*(mpt>0 && trackselect):eta:phi>>p_eta_phi_corr",Form("weight*( abs(eta)<2.4&& pt>%.1f && pt<%.1f)",bin_pt_min,bin_pt_max));
+nt->Draw("(1/eff)*(mpt>0 && trackselect):eta:phi>>p_eta_phi_corr",Form("weight*( abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max));
 
 ////////////rmin dependent/////////////////////////
 TProfile * p_rmin_corr = new TProfile("p_rmin_corr",";r_{min};efficiency",n_rmin_bins,rmin_bins);
-nt->Draw("(1/eff)*(mpt>0 && trackselect):rmin_reco>>p_rmin_corr",Form("weight*(abs(eta)<2.4&& pt>%.1f && pt<%.1f)",bin_pt_min,bin_pt_max));
+nt->Draw("(1/eff)*(mpt>0 && trackselect):rmin_reco>>p_rmin_corr",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max));
 
 p_rmin_corr->SetMaximum(1.1);
 p_rmin_corr->SetMinimum(0.9);
@@ -87,16 +87,16 @@ outf->Close();
 
 ////overall efficiency histograms///////////////////////////////
 TProfile * p_eff_cent = new TProfile("p_eff_cent",";centrality bin;efficiency",100,0,200);
-nt->Draw("eff_cent:cent>>p_eff_cent",Form("weight*(abs(eta)<2.4&& pt>%.1f && pt<%.1f)",bin_pt_min,bin_pt_max),"prof");
+nt->Draw("eff_cent:cent>>p_eff_cent",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max),"prof");
 
 TProfile * p_eff_pt = new TProfile("p_eff_pt",";p_{T} bin;efficiency",maxbin,x);
-nt->Draw("eff_pt:pt>>p_eff_pt",Form("weight*(abs(eta)<2.4&& pt>%.1f && pt<%.1f)",bin_pt_min,bin_pt_max),"prof");
+nt->Draw("eff_pt:pt>>p_eff_pt",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max),"prof");
 
 TProfile2D * p_eff_acceptance = new TProfile2D("p_eff_acceptance",";#phi;#eta;efficiency",50,-TMath::Pi(),TMath::Pi(),50,-2.4,2.4);
-nt->Draw("eff_accept:eta:phi>>p_eff_acceptance",Form("weight*(abs(eta)<2.4&& pt>%.1f && pt<%.1f)",bin_pt_min,bin_pt_max),"prof");
+nt->Draw("eff_accept:eta:phi>>p_eff_acceptance",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max),"prof");
 
 TProfile * p_eff_rmin = new TProfile("p_eff_rmin",";#phi;#eta;efficiency",n_rmin_bins,rmin_bins);
-nt->Draw("eff_rmin:rmin_reco>>p_eff_rmin",Form("weight*(abs(eta)<2.4&& pt>%.1f && pt<%.1f)",bin_pt_min,bin_pt_max),"prof");
+nt->Draw("eff_rmin:rmin_reco>>p_eff_rmin",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max),"prof");
 
 
 TFile *f_efficiency;

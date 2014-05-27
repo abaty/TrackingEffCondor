@@ -30,8 +30,15 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
  // full stats 
  //float pthatWeight[5] = {4.29284e-01,2.99974e-02,3.38946e-4,1.06172e-4,2.79631e-5};
 //100k stats
- float pthatWeight[5] = {0.429284,0.0299974,0.000949812,0.000232709,7.61038e-05};
- float vertexShift = 0.501501;
+ //float pthatWeight[5] = {0.429284,0.0299974,0.000949812,0.000232709,7.61038e-05};
+ //float vertexShift = 0.501501;
+//100 k stats low pthat negated
+ //float pthatWeight[5] = {0,0,0.000980933,0.000234552,7.62797e-05};
+ //float vertexShift = 0.416038;
+//150k stats high pthat
+  float pthatWeight[5] = {0,0,0.000654317,0.000156607,5.07966e-05};
+  float vertexShift = 0.406408;
+
 
  TString directory="/mnt/hadoop/cms/store/user/velicanu/";
  const char* infname[5];
@@ -97,7 +104,8 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
 
 
 //file loop here
-  for(int ifile=0; ifile<5; ifile++){
+//note we only use files 2-4 for now for stats reasons
+  for(int ifile=2; ifile<5; ifile++){
   std::cout<<ifile<<std::endl;
   int nentries = ftrk[ifile]->GetEntriesFast();
 
@@ -111,20 +119,21 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
   fjet[ifile]->GetEntry(jentry);
   evtSel[ifile]->GetEntry(jentry);
 
-//vertexShift can be used to move the center of the vertex distribution if needed
   float cent=fhi[ifile]->hiBin;
   float vz = fhi[ifile]->vz;
- 
+
+//vertexShift can be used to move the center of the vertex distribution if needed 
   if(cent*0.5<bin_cent_min || cent*0.5>=bin_cent_max || fabs(vz-vertexShift)>15 || !(pcoll[ifile])) continue;
-  
-  float weight = 0;
-  float pthat_weight = 0;
-  float cent_weight = 0;
+ 
   float eff_cent=1;
 
   for(int icent=0;icent<nstep_cent;icent++){
     eff_cent=eff_cent*p_eff_cent[icent]->GetBinContent(p_eff_cent[icent]->FindBin(cent));
   }
+
+  float weight = 0;
+  float pthat_weight = 0;
+  float cent_weight = 0;
   
   if(fjet[ifile]->pthat <50)       pthat_weight = pthatWeight[0];
   else if(fjet[ifile]->pthat <80)  pthat_weight = pthatWeight[1];

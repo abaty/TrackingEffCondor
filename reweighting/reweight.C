@@ -65,9 +65,9 @@ void reweight(){
    evtSel[ifile]->SetBranchAddress("pcollisionEventSelection", &pcoll[ifile]); 
   }
 
-  int nevents = 100000;
+  int nevents = 150000;
 //file loop here
-  for(int ifile=0; ifile<5; ifile++){
+  for(int ifile=2; ifile<5; ifile++){
   std::cout<<ifile<<std::endl;
   int nentries = fhi[ifile]->GetEntriesFast();
 
@@ -97,7 +97,7 @@ c2->SaveAs("pthatDistFine.png");
 
 TH1F * weights = new TH1F("weights","weights",nbins,bins);
   using namespace std;
-  for(int i=0; i<nbins; i++){
+  for(int i=2; i<nbins; i++){
     weight[i]=(crossSection[i]-crossSection[i+1])*1000000/((float)pthatDist->GetBinContent(i+1));
     weights->SetBinContent(i+1,weight[i]);
 
@@ -115,15 +115,17 @@ TH1F * weights = new TH1F("weights","weights",nbins,bins);
 
   TH1F * weightsFine = new TH1F("weightsFine","weightsFine",100,0,500);
   for(int i=0;i<100;i++){
-    if(5*(i) <50)        weightsFine->SetBinContent(i+1,weight[0]);
-    else if(5*(i)<80)  weightsFine->SetBinContent(i+1,weight[1]);
-    else if(5*(i)<100) weightsFine->SetBinContent(i+1,weight[2]);
+    //if(5*(i) <50)        weightsFine->SetBinContent(i+1,weight[0]);
+    //else if(5*(i)<80)  weightsFine->SetBinContent(i+1,weight[1]);
+    //else if(5*(i)<100) weightsFine->SetBinContent(i+1,weight[2]);
+    if(5*(i)<100) weightsFine->SetBinContent(i+1,weight[2]);
     else if(5*(i)<120) weightsFine->SetBinContent(i+1,weight[3]);
     else                 weightsFine->SetBinContent(i+1,weight[4]);
   }
 
   pthatDistFine->Multiply(weightsFine);
   pthatDistFine->Draw("h");
+  c2->SaveAs("pthatDistWeightedFine.png");
 //
 
 
@@ -133,7 +135,7 @@ TH1F * weights = new TH1F("weights","weights",nbins,bins);
 ///***********************************************************cent reweighting part******************************************
 TCanvas * c3 = new TCanvas("c3","c3",500,700);
 
-for(int ifile=0; ifile<5; ifile++){
+for(int ifile=2; ifile<5; ifile++){
   std::cout<<ifile<<std::endl;
   int nentries = fhi[ifile]->GetEntriesFast();
 
@@ -151,9 +153,10 @@ for(int ifile=0; ifile<5; ifile++){
   float cent=fhi[ifile]->hiBin;
   float vz = fhi[ifile]->vz;
 
-  if(fjet[ifile]->pthat<50) vzDistMC->Fill(vz,weight[0]);
-  else if(fjet[ifile]->pthat<80) vzDistMC->Fill(vz,weight[1]);
-  else if(fjet[ifile]->pthat<100) vzDistMC->Fill(vz,weight[2]);
+  //if(fjet[ifile]->pthat<50) vzDistMC->Fill(vz,weight[0]);
+  //else if(fjet[ifile]->pthat<80) vzDistMC->Fill(vz,weight[1]);
+  //else if(fjet[ifile]->pthat<100) vzDistMC->Fill(vz,weight[2]);
+  if(fjet[ifile]->pthat<100) vzDistMC->Fill(vz,weight[2]);
   else if(fjet[ifile]->pthat<120) vzDistMC->Fill(vz,weight[3]);
   else  vzDistMC->Fill(vz,weight[4]);
   }
@@ -182,7 +185,7 @@ for(int ifile=0; ifile<5; ifile++){
 TH1F * MC = new TH1F("MC","MC",100,0,200);
 
 
- for(int ifile=0; ifile<5; ifile++){
+ for(int ifile=2; ifile<5; ifile++){
   std::cout<<ifile<<std::endl;
   int nentries = fhi[ifile]->GetEntriesFast();
 

@@ -30,8 +30,15 @@ void track_ntupler_cent_fake(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,
  //full stats
   //float pthatWeight[5] = {4.29284e-01,2.99974e-02,3.38946e-4,1.06172e-4,2.79631e-5};
  //100k stats
-  float pthatWeight[5] = {0.429284,0.0299974,0.000949812,0.000232709,7.61038e-05}; 
-  float vertexShift = 0.501501;
+  //float pthatWeight[5] = {0.429284,0.0299974,0.000949812,0.000232709,7.61038e-05}; 
+  //float vertexShift = 0.501501;
+ //100k now low pthat
+  //float pthatWeight[5] = {0,0,0.000980933,0.000234552,7.62797e-05};
+  //float vertexShift = 0.416038;
+//150k stats high pthat
+  float pthatWeight[5] = {0,0,0.000654317,0.000156607,5.07966e-05};
+  float vertexShift = 0.406408;
+
 //150k stats
  //float pthatWeight[5] = {0.429284,0.0299974,0.000640323,0.000155783,5.07186e-05};
  //float vertexShift = 0.501419;
@@ -98,7 +105,7 @@ void track_ntupler_cent_fake(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,
  
  TNtuple *nt_track = new TNtuple("nt_track","",trackVars.data());
 
-  for(int ifile=0; ifile<5; ifile++){
+  for(int ifile=2; ifile<5; ifile++){
   std::cout<<ifile<<std::endl;
   int nentries = ftrk[ifile]->GetEntriesFast();
   
