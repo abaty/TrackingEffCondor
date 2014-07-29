@@ -1,0 +1,72 @@
+﻿Instructions for running Iterative Tracking Corrections Code
+
+Pull the code off of github here:
+
+https://github.com/abaty/TrackingEffCondor
+
+This version runs over 3 files with pthat & centrality reweighting, taking 150k events from each file.  This takes upwards of 30 hours; if one wants to experiment with different settings I recommend using a much smaller number nevents.
+
+
+Setup for new MC files 
+(the copy from github already has this done for the official mpt sample)
+
+1) If you would like to change how many events are taken from each file (the current code takes 150k from each file), change the value of “nevents” in:
+
+reweighting/reweight.C
+run/run.C
+run/run_fake.C
+
+2)  If you would like to change the input MC files, the strings to change are located at:
+lines 47-51 of reweighting/reweight.C
+lines 45-49 of ntupler/track_ntupler_cent.C
+lines 45-59 of ntupler/track_ntupler_cent_fake.C
+
+3)  Run reweighting/reweight.C in root.
+Amongst the output of this, there will be a line with an array with 5 numbers in braces {}.  These are the weights for each pthat bin (if you need to do pthat reweighting).   They will be needed later.
+
+Another line will say “vertexShift:” followed by a number.  This is the offset between the centers of the MC and data vz distributions.  This is also needed later.
+
+Finally, reweight.C will produce a root file “reweighting/centrality_weights.root”.  
+Copy this file into run/.
+
+
+4)  In ntupler/track_ntupler_cent.C and ntupler/track_ntupler_cent_fake.C replace the values of pthatWeight and  vertexShift with the numbers noted from step 3.
+
+(It occurs to me that it might be worth automating these steps if one needs to produce a lot of corrections for many different files.)
+
+
+Running the Code on Condor
+
+The efficiency and fake codes run separately; one must submit a set of efficiency jobs and a set of fake correction jobs.  Everything in this section will in the /run/ folder.
+
+
+1)  Change lines 7-9 of run.condor and run_fake.condor to point to a directory you want the error and log files to be output to
+
+2)  Change lines 10-11 of run.sh and run_fake.sh to move the output files to a directory you want the corrections in.  After the condor jobs finish, this directory will contain 58 small root files with your corrections.
+
+Note: run.sh and run_fake.sh contain a 'rm *.root' command.  Running these shell commands interactively will delete centrality_weights.root; I recommend you don't do this.
+
+3)  Type in 
+./submit.sh
+cd into the folder this command makes and type
+condor_submit run.condor
+This should submit 29 condor jobs to get efficiency corrections
+
+To submit the fake jobs use the commands
+./submit_fake.sh
+and 
+condor_submit run_fake.condor
+
+Resubmitting failed jobs
+
+To resubmit any jobs that fail for whatever reason (usually 1-2 of the 29 fail for whatever reason) note the job numbers of the ones that fail. 
+
+1) In submit.sh (or submit_fake.sh) change the value of njobs to the number of failed jobs that need resubmitting.  
+
+2) Starting at line 47 of run.C (or run_fake.C)  uncomment out the if statement and put the failed job number at the end of the line, one line for each failed job.  For example, if jobs 3,6, and 18 failed the code would be:
+
+if(argument==0) argument=3;
+else if(argument==1) argument=6;
+else if(argument==2) argument=18;
+
+3) repeat steps 3 and 4 from the previous section.
