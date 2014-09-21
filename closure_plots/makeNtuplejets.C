@@ -35,7 +35,7 @@ void makeNtuple(){
  float pthatWeight[5] = {0,0,0.000654317,0.000156607,5.07966e-05};
  float vertexShift = 0.406408;
 
- const int nevents = 50000;
+ const int nevents = 286000;
 
  TString directory="/mnt/hadoop/cms/store/user/velicanu/";
  const char* infname[5];
@@ -108,12 +108,12 @@ void makeNtuple(){
  }
 
  //output file and tree
- TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_50k_jets_fixedeta_8_09_2014.root","recreate");
+ TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_large_jets_rminGT16_18_09_2014.root","recreate");
  
- std::string particleVars="pt:matchedpt:eta:phi:rmin:trackselect:cent:eff:cent_weight:pthat_weight:weight:pt1:pt2:dphi:asym:eta1:eta2";
+ std::string particleVars="pt:matchedpt:eta:phi:rmin:trackselect:cent:eff:cent_weight:pthat_weight:weight:pt1:pt2:dphi:asym:eta1:eta2:phi1:phi2:r_lead:r_sublead:isLeadClosest:isSubleadClosest";
  TNtuple *nt_particle = new TNtuple("nt_particle","",particleVars.data());
  
- std::string trackVars="pt:eta:phi:rmin:trackselect:trackstatus:cent:eff:trkfake:fake:cent_weight:pthat_weight:weight:pt1:pt2:dphi:asym:eta1:eta2";
+ std::string trackVars="pt:eta:phi:rmin:trackselect:trackstatus:cent:eff:trkfake:fake:cent_weight:pthat_weight:weight:pt1:pt2:dphi:asym:eta1:eta2:phi1:phi2:r_lead:r_sublead:isLeadClosest:isSubleadClosest";
  TNtuple *nt_track = new TNtuple("nt_track","",trackVars.data());
 
 
@@ -181,7 +181,7 @@ for(int jentry=0;jentry<nentries;jentry++){
   float ptratio=-99;
   float asym = -1;
 
-std::vector<std::pair<double, std::pair<double,std::pair<double, std::pair<double,std::pair<double,std::pair<double,std::pair<double,std::pair<double,double> > > > > > > > > jets;
+std::vector<std::pair<float, std::pair<float,std::pair<float, std::pair<float,std::pair<float,std::pair<float,std::pair<float,std::pair<float,float> > > > > > > > > jets;
   int njet=0;
   for(int ijet=0;ijet<fjet[ifile]->nref;ijet++){
 
@@ -191,6 +191,10 @@ std::vector<std::pair<double, std::pair<double,std::pair<double, std::pair<doubl
   }
 
   std::sort(jets.begin(),jets.end());
+
+//cut to study jet effects, removing no-jet events
+  if(njet == 0) continue;
+
   if(njet>0){
    pt1=       jets[njet-1].first;
    eta1=      jets[njet-1].second.first;
@@ -247,7 +251,19 @@ if(njet>1){
      if(r_reco<rmin)rmin=r_reco;
     }
 
-   
+    float isLeadClosest = 0;
+    float isSubleadClosest = 0;
+    float r_lead    = sqrt(pow(eta-eta1,2)+pow(acos(cos(phi-phi1)),2));
+    if(r_lead == rmin) isLeadClosest = 1;
+    float r_sublead = sqrt(pow(eta-eta2,2)+pow(acos(cos(phi-phi2)),2));
+    if(r_sublead == rmin) isSubleadClosest = 1;   
+
+  //cut for high R_lead or R_sublead so I can make a large ntuple
+    if(isLeadClosest == 0 && isSubleadClosest == 0) continue;
+    if(rmin < 1.6) continue;
+    
+
+
    //get efficiency correction for the track
    float eff_accept=1;
    float eff_pt=1;
@@ -267,7 +283,7 @@ if(njet>1){
    
    //fill in the output tree
   
-   float entry[]={pt,mpt,eta,phi,rmin,trackselect,cent,eff,cent_weight,pthat_weight,weight,pt1,pt2,dphi,asym,eta1,eta2};
+   float entry[]={pt,mpt,eta,phi,rmin,trackselect,cent,eff,cent_weight,pthat_weight,weight,pt1,pt2,dphi,asym,eta1,eta2,phi1,phi2,r_lead,r_sublead,isLeadClosest,isSubleadClosest};
 
    nt_particle->Fill(entry);
 
@@ -292,6 +308,19 @@ if(njet>1){
      float r_reco=sqrt(pow(eta-fjet[ifile]->jteta[ijet],2)+pow(acos(cos(phi-fjet[ifile]->jtphi[ijet])),2));
      if(r_reco<rmin)rmin=r_reco;
     }
+
+
+    float isLeadClosest = 0;
+    float isSubleadClosest = 0;
+    float r_lead    = sqrt(pow(eta-eta1,2)+pow(acos(cos(phi-phi1)),2));
+    if(r_lead == rmin) isLeadClosest = 1;
+    float r_sublead = sqrt(pow(eta-eta2,2)+pow(acos(cos(phi-phi2)),2));
+    if(r_sublead == rmin) isSubleadClosest = 1;
+
+  //cut for high R_lead or R_sublead so I can make a large ntuple
+      if(isLeadClosest == 0 && isSubleadClosest == 0) continue;
+      if(rmin < 1.6) continue;
+
 
    //get efficiency and fake rate correction for the track Yen-Jie
    float eff_accept=1;
@@ -333,7 +362,7 @@ if(njet>1){
    //if(fake<0) fake=0;
 
    //fill in the output tree
-   float entry[]={pt,eta,phi,rmin,trackselect,trackstatus,cent,eff,trkfake,fake,cent_weight,pthat_weight,weight,pt1,pt2,dphi,asym,eta1,eta2};
+   float entry[]={pt,eta,phi,rmin,trackselect,trackstatus,cent,eff,trkfake,fake,cent_weight,pthat_weight,weight,pt1,pt2,dphi,asym,eta1,eta2,phi1,phi2,r_lead,r_sublead,isLeadClosest,isSubleadClosest};
    nt_track->Fill(entry);
   }
  }

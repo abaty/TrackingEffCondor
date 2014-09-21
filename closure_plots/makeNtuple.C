@@ -35,7 +35,8 @@ void makeNtuple(){
  float pthatWeight[5] = {0,0,0.000654317,0.000156607,5.07966e-05};
  float vertexShift = 0.406408;
 
- const int nevents = 150000;
+//current weights are for 150k (using 20k for approximation)
+ const int nevents = 20000;
 
  TString directory="/mnt/hadoop/cms/store/user/velicanu/";
  const char* infname[5];
@@ -108,12 +109,12 @@ void makeNtuple(){
  }
 
  //output file and tree
- TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_150kfull.root","recreate");
+ TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_20k_dzstudy.root","recreate");
  
- std::string particleVars="pt:matchedpt:eta:phi:rmin:trackselect:cent:eff:cent_weight:pthat_weight:weight";
+ std::string particleVars="pt:matchedpt:eta:phi:rmin:trackselect:cent:eff:cent_weight:pthat_weight:weight:dz_dzerr:dxy_dxyerr:Nhit:vz:trkAlgo";
  TNtuple *nt_particle = new TNtuple("nt_particle","",particleVars.data());
  
- std::string trackVars="pt:eta:phi:rmin:trackselect:trackstatus:cent:eff:trkfake:fake:cent_weight:pthat_weight:weight";
+ std::string trackVars="pt:eta:phi:rmin:trackselect:trackstatus:cent:eff:trkfake:fake:cent_weight:pthat_weight:weight:dz_dzerr:dxy_dxyerr:Nhit:vz:trkAlgo";
  TNtuple *nt_track = new TNtuple("nt_track","",trackVars.data());
 
 
@@ -139,6 +140,7 @@ for(int jentry=0;jentry<nentries;jentry++){
   float vz = fhi[ifile]->vz;
  
   if(fabs(vz-vertexShift)>15 || !(pcoll[ifile])) continue;
+  vz = vz-vertexShift;
 
   float weight = 0;
   float pthat_weight = 0;
@@ -157,7 +159,11 @@ for(int jentry=0;jentry<nentries;jentry++){
   for(int itrk=0;itrk<ftrk[ifile]->nParticle;itrk++){
 
    float trackselect=(ftrk[ifile]->mtrkQual[itrk] && fabs(ftrk[ifile]->mtrkDxy1[itrk]/ftrk[ifile]->mtrkDxyError1[itrk])<3.0 && fabs(ftrk[ifile]->mtrkDz1[itrk]/ftrk[ifile]->mtrkDzError1[itrk])<3 && (ftrk[ifile]->mtrkPtError[itrk]/ftrk[ifile]->mtrkPt[itrk])<0.1);
+   float dz_cut=fabs(ftrk[ifile]->mtrkDz1[itrk]/ftrk[ifile]->mtrkDzError1[itrk]);
+   float dxy_cut=fabs(ftrk[ifile]->mtrkDxy1[itrk]/ftrk[ifile]->mtrkDxyError1[itrk]);
+   float Nhit = ftrk[ifile]->trkNHit[itrk];
    float eta=ftrk[ifile]->pEta[itrk];
+   float trkAlgo=ftrk[ifile]->trkAlgo[itrk];
 
    if(fabs(eta)>2.4) continue; //acceptance of the tracker
    float pt=ftrk[ifile]->pPt[itrk];
@@ -191,7 +197,7 @@ for(int jentry=0;jentry<nentries;jentry++){
    
    //fill in the output tree
   
-   float entry[]={pt,mpt,eta,phi,rmin,trackselect,cent,eff,cent_weight,pthat_weight,weight};
+   float entry[]={pt,mpt,eta,phi,rmin,trackselect,cent,eff,cent_weight,pthat_weight,weight,dz_cut,dxy_cut,Nhit,vz,trkAlgo};
 
    nt_particle->Fill(entry);
 
@@ -200,7 +206,11 @@ for(int jentry=0;jentry<nentries;jentry++){
   for(int itrk=0;itrk<ftrk[ifile]->nTrk;itrk++){
 
    float trackselect=(ftrk[ifile]->highPurity[itrk] && fabs(ftrk[ifile]->trkDxy1[itrk]/ftrk[ifile]->trkDxyError1[itrk])<3.0 && fabs(ftrk[ifile]->trkDz1[itrk]/ftrk[ifile]->trkDzError1[itrk])<3 && (ftrk[ifile]->trkPtError[itrk]/ftrk[ifile]->trkPt[itrk])<0.1);
+   float dz_cut=fabs(ftrk[ifile]->trkDz1[itrk]/ftrk[ifile]->trkDzError1[itrk]);
+   float dxy_cut=fabs(ftrk[ifile]->trkDxy1[itrk]/ftrk[ifile]->trkDxyError1[itrk]);
+   float Nhit = ftrk[ifile]->trkNHit[itrk];
    float eta=ftrk[ifile]->trkEta[itrk];
+   float trkAlgo=ftrk[ifile]->trkAlgo[itrk];
 
    if(fabs(eta)>2.4) continue; //acceptance of the tracker   
    
@@ -257,7 +267,7 @@ for(int jentry=0;jentry<nentries;jentry++){
    //if(fake<0) fake=0;
 
    //fill in the output tree
-   float entry[]={pt,eta,phi,rmin,trackselect,trackstatus,cent,eff,trkfake,fake,cent_weight,pthat_weight,weight};
+   float entry[]={pt,eta,phi,rmin,trackselect,trackstatus,cent,eff,trkfake,fake,cent_weight,pthat_weight,weight,dz_cut,dxy_cut,Nhit,vz,trkAlgo};
    nt_track->Fill(entry);
   }
  }

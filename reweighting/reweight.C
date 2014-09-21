@@ -21,7 +21,7 @@
 #include "TCut.h"
 #include "TNtuple.h"
 #include "TLine.h"
-#include "../condor_trk_corr/ntupler/trackTree.C"
+#include "../ntupler/trackTree.C"
 
 void reweight(){
  TH1D::SetDefaultSumw2();

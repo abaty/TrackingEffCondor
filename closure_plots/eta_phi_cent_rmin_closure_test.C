@@ -6,7 +6,6 @@
 #include "TRandom.h"
 #include "TH1F.h"
 #include "TF1.h"
-
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1D.h"
@@ -131,7 +130,7 @@ fixAxes(histo);
 l->Draw("same");
 }
 
-void pt_closure_test(int m = 0){
+void pt_closure_test(int m = 0, int onlyFull = 1){
 
 if(m<0 || m>6){
   m=0;
@@ -151,7 +150,7 @@ const float y2[7]= {0.95 ,0.4, 0.95 ,0.95,0.95,0.95,0.95};
  
 
 TH1D::SetDefaultSumw2();
-TFile * f= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_150kfull.root");
+TFile * f= new TFile("/mnt/hadoop/cms/store/user/abaty/tracking_Efficiencies/closure_ntuples/track_ntuple_pthatCombo_150k_jet_etas.root");
 TTree * nt_track = (TTree*)f->Get("nt_track");
 TTree * nt_particle = (TTree*)f->Get("nt_particle");
 
@@ -172,36 +171,31 @@ for(int ix=0; ix<ny+1;ix++){
  inix+=delta;
 }
 
+TLine * l;
+  if(m==0) l = new TLine(lowerBin[m],1,higherBin[m],1);
+  if(m==1) l = new TLine(lowerBin[m],1,higherBin[m],1);
+  if(m==2) l = new TLine(lowerBin[m],1,higherBin[m],1);
+  if(m==3) l = new TLine(lowerBin[m],1,higherBin[m],1);
+  if(m==4) l = new TLine(lowerBin[m],1,higherBin[m],1);
+  if(m==5) l = new TLine(lowerBin[m],1,higherBin[m],1);
+  if(m==6) l = new TLine(lowerBin[m],1,higherBin[m],1);
+
+ TLegend *leg3;
+  if(m==0) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
+  if(m==1) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
+  if(m==2) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
+  if(m==3) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
+  if(m==4) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
+  if(m==5) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
+  if(m==6) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
+
+
 //eff correction
 TH1D * h_gen = new  TH1D("h_gen",Form(";%s;Arbitrary Units",label[m]),bins[m],lowerBin[m],higherBin[m]);
-TH1D * h_gen_select = new  TH1D("h_gen_select",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
-TH1D * h_gen_matched_select_corr = new TH1D("h_gen_matched_select_corr",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
-
 nt_particle->Draw(Form("%s>>h_gen",var[m]),"weight*(pt>0.5)");
-nt_particle->Draw(Form("%s>>h_gen_select",var[m]),"weight*(trackselect && pt>0.5)");
-nt_particle->Draw(Form("%s>>h_gen_matched_select_corr",var[m]),"(1/eff)*weight*(trackselect && pt>0.5)");
-
 h_gen->SetMarkerColor(1);
 h_gen->SetMarkerStyle(25);
 h_gen->SetLineWidth(1);
-h_gen_select->SetMarkerColor(1);
-h_gen_matched_select_corr->SetMarkerColor(kRed);
-h_gen_matched_select_corr->SetLineColor(kRed);
-
-TLegend *leg2;
-if(m==0) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]); 
-if(m==1) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
-if(m==2) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
-if(m==3) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
-if(m==4) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
-if(m==5) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
-if(m==6) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
-
-
-legFormat(leg2);
-leg2->AddEntry(h_gen,"gen","p");
-leg2->AddEntry(h_gen_select,"matched gen","p");
-leg2->AddEntry(h_gen_matched_select_corr,"corrected matched gen","p");
 
 TCanvas * c2 = new TCanvas("c2","",600,600);
 makeMultiPanelCanvas(c2,1,2,0.0,0.0,0.15,0.15,0.02);
@@ -209,62 +203,59 @@ c2->cd(1);
 if(m<2) c2->cd(1)->SetLogy();
 else{
   h_gen->SetMaximum(1.6*h_gen->GetBinContent(h_gen->GetMaximumBin()));
-  h_gen->SetMinimum(0.7*h_gen_select->GetBinContent(h_gen_select->GetMinimumBin()));
+  h_gen->SetMinimum(0.7*h_gen->GetBinContent(h_gen->GetMinimumBin()));
 }
 
-h_gen->Draw();
 fixAxes(h_gen);
-h_gen_select->Draw("same");
-h_gen_matched_select_corr->Draw("same");
-leg2->Draw("same");
 
-TH1D * hgen_corr_rat = (TH1D*)h_gen_matched_select_corr->Clone("hgen_corr_rat");
-hgen_corr_rat->Divide(h_gen);
-c2->cd(2);
+if(onlyFull !=1){
+  TH1D * h_gen_select = new  TH1D("h_gen_select",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
+  TH1D * h_gen_matched_select_corr = new TH1D("h_gen_matched_select_corr",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
 
-TLine * l; 
-if(m==0) l = new TLine(lowerBin[m],1,higherBin[m],1);
-if(m==1) l = new TLine(lowerBin[m],1,higherBin[m],1);
-if(m==2) l = new TLine(lowerBin[m],1,higherBin[m],1);
-if(m==3) l = new TLine(lowerBin[m],1,higherBin[m],1);
-if(m==4) l = new TLine(lowerBin[m],1,higherBin[m],1);
-if(m==5) l = new TLine(lowerBin[m],1,higherBin[m],1);
-if(m==6) l = new TLine(lowerBin[m],1,higherBin[m],1);
+  nt_particle->Draw(Form("%s>>h_gen_select",var[m]),"weight*(trackselect && pt>0.5)");
+  nt_particle->Draw(Form("%s>>h_gen_matched_select_corr",var[m]),"(1/eff)*weight*(trackselect && pt>0.5)");
+
+  h_gen_select->SetMarkerColor(1);
+  h_gen_matched_select_corr->SetMarkerColor(kRed);
+  h_gen_matched_select_corr->SetLineColor(kRed);
+
+  TLegend *leg2;
+  if(m==0) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]); 
+  if(m==1) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
+  if(m==2) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
+  if(m==3) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
+  if(m==4) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
+  if(m==5) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
+  if(m==6) leg2 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
 
 
-drawClosure(l,hgen_corr_rat,0);
+  legFormat(leg2);
+  leg2->AddEntry(h_gen,"gen","p");
+  leg2->AddEntry(h_gen_select,"matched gen","p");
+  leg2->AddEntry(h_gen_matched_select_corr,"corrected matched gen","p");
 
-c2->SaveAs(Form("compare_gen_select_corr_%s.png",var1[m]));
-c2->SaveAs(Form("compare_gen_select_corr_%s.pdf",var1[m]));
+  h_gen->Draw();
+  h_gen_select->Draw("same");
+  h_gen_matched_select_corr->Draw("same");
+  leg2->Draw("same");
+
+  TH1D * hgen_corr_rat = (TH1D*)h_gen_matched_select_corr->Clone("hgen_corr_rat");
+  hgen_corr_rat->Divide(h_gen);
+  c2->cd(2);
+
+  drawClosure(l,hgen_corr_rat,0);
+
+  c2->SaveAs(Form("compare_gen_select_corr_%s.png",var1[m]));
+  c2->SaveAs(Form("compare_gen_select_corr_%s.pdf",var1[m]));
+}
 
 //****************************************************************************
 //fake correction
 TH1D * h_reco = new  TH1D("h_reco",Form(";%s;Arbitrary",label[m]),bins[m],lowerBin[m],higherBin[m]);
-TH1D * h_reco_matched = new  TH1D("h_reco_matched",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
-TH1D * h_reco_fakecorr = new TH1D("h_reco_fakecorr",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
-nt_track->Draw(Form("%s>>h_reco",var[m]),"weight*(trackselect && pt>0.5)"); 
-nt_track->Draw(Form("%s>>h_reco_matched",var[m]),"weight*(trackselect && !trkfake && pt>0.5)"); 
-nt_track->Draw(Form("%s>>h_reco_fakecorr",var[m]),"(1-fake)*weight*(trackselect && pt>0.5)"); 
-
-h_reco_matched->SetMarkerColor(1);
-h_reco_matched->SetMarkerStyle(25);
-h_reco_fakecorr->SetMarkerColor(kRed);
-h_reco_fakecorr->SetLineColor(kRed);
-
-TLegend *leg3;
-if(m==0) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
-if(m==1) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
-if(m==2) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
-if(m==3) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
-if(m==4) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
-if(m==5) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
-if(m==6) leg3 = new TLegend(x1[m],y1[m],x2[m],y2[m]);
-
+nt_track->Draw(Form("%s>>h_reco",var[m]),"weight*(trackselect && pt>0.5)");
 
 legFormat(leg3);
 leg3->AddEntry(h_reco,"reco","p");
-leg3->AddEntry(h_reco_matched,"matched reco","p");
-leg3->AddEntry(h_reco_fakecorr,"fake corrected reco","p");
 
 TCanvas * c3 = new TCanvas("c3","",600,600);
 makeMultiPanelCanvas(c3,1,2,0.0,0.0,0.15,0.15,0.02);
@@ -272,24 +263,44 @@ c3->cd(1);
 if(m<2) c3->cd(1)->SetLogy();
 else{
   h_reco->SetMaximum(1.6*h_reco->GetBinContent(h_reco->GetMaximumBin()));
-  h_reco->SetMinimum(0.7*h_reco_matched->GetBinContent(h_reco_matched->GetMinimumBin()));
+  h_reco->SetMinimum(0.7*h_reco->GetBinContent(h_reco->GetMinimumBin()));
 }
-
-h_reco->Draw();
 fixAxes(h_reco);
 
-h_reco_matched->Draw("same");
-h_reco_fakecorr->Draw("same");
-leg3->Draw("same");
-TH1D * hreco_fakecorr_rat = (TH1D*)h_reco_fakecorr->Clone("hreco_fakecorr_rat");
-hreco_fakecorr_rat->Divide(h_reco_matched);
+if(onlyFull != 1){
+  TH1D * h_reco_matched = new  TH1D("h_reco_matched",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
+  TH1D * h_reco_fakecorr = new TH1D("h_reco_fakecorr",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]); 
+  nt_track->Draw(Form("%s>>h_reco_matched",var[m]),"weight*(trackselect && !trkfake && pt>0.5)"); 
+  nt_track->Draw(Form("%s>>h_reco_fakecorr",var[m]),"(1-fake)*weight*(trackselect && pt>0.5)"); 
 
-c3->cd(2);
-drawClosure(l,hreco_fakecorr_rat,1);
+  leg3->AddEntry(h_reco_matched,"matched reco","p");
+  leg3->AddEntry(h_reco_fakecorr,"fake corrected reco","p");
 
-c3->SaveAs(Form("compare_reco_fake_corr_%s.png",var1[m]));
-c3->SaveAs(Form("compare_reco_fake_corr_%s.pdf",var1[m]));
 
+  h_reco_matched->SetMarkerColor(1);
+  h_reco_matched->SetMarkerStyle(25);
+  h_reco_fakecorr->SetMarkerColor(kRed);
+  h_reco_fakecorr->SetLineColor(kRed);
+
+  legFormat(leg3);
+  leg3->AddEntry(h_reco,"reco","p");
+  leg3->AddEntry(h_reco_matched,"matched reco","p");
+  leg3->AddEntry(h_reco_fakecorr,"fake corrected reco","p");
+
+  h_reco->Draw();
+
+  h_reco_matched->Draw("same");
+  h_reco_fakecorr->Draw("same");
+  leg3->Draw("same");
+  TH1D * hreco_fakecorr_rat = (TH1D*)h_reco_fakecorr->Clone("hreco_fakecorr_rat");
+  hreco_fakecorr_rat->Divide(h_reco_matched);
+
+  c3->cd(2);
+  drawClosure(l,hreco_fakecorr_rat,1);
+
+  c3->SaveAs(Form("compare_reco_fake_corr_%s.png",var1[m]));
+  c3->SaveAs(Form("compare_reco_fake_corr_%s.pdf",var1[m]));
+}
 
 
 //********************************************************************
