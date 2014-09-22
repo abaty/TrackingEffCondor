@@ -23,7 +23,7 @@
 #include "TMath.h"
 #include "TLine.h"
 
-void plot_fake_cent(int nstep_cent=2,int nstep_accept=2,int nstep_pt=2,int nstep_rmin=2,double  bin_pt_min=0.4,double bin_pt_max=1,double bin_cent_min=0, double bin_cent_max=10,int nevents=45000,bool is_final=false){
+void plot_fake_cent(int nstep_cent=2,int nstep_accept=2,int nstep_pt=2,int nstep_rmin=2,double  bin_pt_min=0.4,double bin_pt_max=1,double bin_cent_min=0, double bin_cent_max=10, bool is_final=false){
 TH1D::SetDefaultSumw2();
 TH2D::SetDefaultSumw2(true);
 

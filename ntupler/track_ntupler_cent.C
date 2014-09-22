@@ -23,38 +23,30 @@
 #include "TLine.h"
 #include "trackTree.C"
 
-void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int nstep_rmin=1,double bin_pt_min=8,double bin_pt_max=100,double bin_cent_min=0,double bin_cent_max=10,int nevents=593463){
+void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int nstep_rmin=1,double bin_pt_min=8,double bin_pt_max=100,double bin_cent_min=0,double bin_cent_max=10,int *nevents){
  TH1D::SetDefaultSumw2();
 
  //converted to nb
- // full stats 
- //float pthatWeight[5] = {4.29284e-01,2.99974e-02,3.38946e-4,1.06172e-4,2.79631e-5};
-//100k stats
- //float pthatWeight[5] = {0.429284,0.0299974,0.000949812,0.000232709,7.61038e-05};
- //float vertexShift = 0.501501;
-//100 k stats low pthat negated
- //float pthatWeight[5] = {0,0,0.000980933,0.000234552,7.62797e-05};
- //float vertexShift = 0.416038;
-//150k stats high pthat
-  float pthatWeight[5] = {0,0,0.000654317,0.000156607,5.07966e-05};
-  float vertexShift = 0.406408;
+  float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11753e-05};
+  float vertexShift = 0.436781;
 
+ TString directory="/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/";
+ const char* infname[7];
+ infname[0] = "/HiForest_PYTHIA_HYDJET_pthat30_Track9_Jet30_matchEqR_merged_forest_0"; 
+ infname[1] = "/HiForest_PYTHIA_HYDJET_pthat50_Track9_Jet30_matchEqR_merged_forest_0";
+ infname[2] = "/HiForest_PYTHIA_HYDJET_pthat80_Track9_Jet30_matchEqR_merged_forest_0";
+ infname[3] = "/HiForest_PYTHIA_HYDJET_pthat120_Track9_Jet30_matchEqR_merged_forest_0";
+ infname[4] = "/HiForest_PYTHIA_HYDJET_pthat220_Track9_Jet30_matchEqR_merged_forest_0";
+ infname[5] = "/HiForest_PYTHIA_HYDJET_pthat280_Track9_Jet30_matchEqR_merged_forest_0";
+ infname[6] = "/HiForest_PYTHIA_HYDJET_pthat370_Track9_Jet30_matchEqR_merged_forest_0";
 
- TString directory="/mnt/hadoop/cms/store/user/velicanu/";
- const char* infname[5];
- infname[0] = "/HydjetDrum_Pyquen_Dijet30_FOREST_Track8_Jet24_FixedPtHatJES_v0/0"; 
- infname[1] = "/HydjetDrum_Pyquen_Dijet50_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
- infname[2] = "/HydjetDrum_Pyquen_Dijet80_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
- infname[3] = "/HydjetDrum_Pyquen_Dijet100_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
- infname[4] = "/HydjetDrum_Pyquen_Dijet120_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
-
- trackTree * ftrk[5];
- HiTree * fhi[5];
- t * fjet[5];
- TFile * evtSelFile[5];
- TTree * evtSel[5];
- int pcoll[5];
- for(int ifile=0; ifile<5; ifile++){
+ trackTree * ftrk[7];
+ HiTree * fhi[7];
+ t * fjet[7];
+ TFile * evtSelFile[7];
+ TTree * evtSel[7];
+ int pcoll[7];
+ for(int ifile=0; ifile<7; ifile++){
    ftrk[ifile] = new trackTree(Form("%s/%s.root",directory.Data(),infname[ifile]));
    fhi[ifile] = new HiTree(Form("%s/%s.root",directory.Data(),infname[ifile]));
    fjet[ifile] = new t(Form("%s/%s.root",directory.Data(),infname[ifile]));
@@ -105,14 +97,13 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
 
 //file loop here
 //note we only use files 2-4 for now for stats reasons
-  for(int ifile=2; ifile<5; ifile++){
+  for(int ifile=2; ifile<4; ifile++){
   std::cout<<ifile<<std::endl;
   int nentries = ftrk[ifile]->GetEntriesFast();
 
 //event loop 
-  if(nevents<nentries) nentries = nevents;
-  for(int jentry=0;jentry<nentries;jentry++){
-  if((jentry%10000)==0) std::cout<<jentry<<"/"<<nentries<< "   File:" << ifile <<std::endl;
+  for(int jentry=0;jentry<nevents[ifile];jentry++){
+  if((jentry%10000)==0) std::cout<<jentry<<"/"<<nevents[ifile]<< "   File:" << ifile <<std::endl;
 
   ftrk[ifile]->GetEntry(jentry);
   fhi[ifile]->GetEntry(jentry);
@@ -137,9 +128,11 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
   
   if(fjet[ifile]->pthat <50)       pthat_weight = pthatWeight[0];
   else if(fjet[ifile]->pthat <80)  pthat_weight = pthatWeight[1];
-  else if(fjet[ifile]->pthat <100) pthat_weight = pthatWeight[2];
-  else if(fjet[ifile]->pthat <120) pthat_weight = pthatWeight[3];
-  else                      pthat_weight = pthatWeight[4];
+  else if(fjet[ifile]->pthat <120) pthat_weight = pthatWeight[2];
+  else if(fjet[ifile]->pthat <220) pthat_weight = pthatWeight[3];
+  else if(fjet[ifile]->pthat <280) pthat_weight = pthatWeight[4];
+  else if(fjet[ifile]->pthat <370) pthat_weight = pthatWeight[5];
+  else                             pthat_weight = pthatWeight[6];
 
   cent_weight = centWeights->GetBinContent(centWeights->FindBin(cent));  
   weight = pthat_weight*cent_weight;
@@ -205,7 +198,7 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
   for(int irmin=0; irmin<nstep_rmin;irmin++){
         f_eff_rmin[irmin]->Close();
 	}
-  for(int ifile=0; ifile<5; ifile++){		
+  for(int ifile=0; ifile<7; ifile++){		
     fjet[ifile]->Close();
     fhi[ifile]->Close();
     ftrk[ifile]->Close();

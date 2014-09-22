@@ -23,7 +23,7 @@
 #include "TMath.h"
 #include "TLine.h"
 
-void plot_efficiency_cent(int nstep_cent=2,int nstep_accept=2,int nstep_pt=2,int nstep_rmin=2,double  bin_pt_min=0.4,double bin_pt_max=1,double bin_cent_min=0, double bin_cent_max=10,int nevents=45000,bool is_final=false){
+void plot_efficiency_cent(int nstep_cent=2,int nstep_accept=2,int nstep_pt=2,int nstep_rmin=2,double  bin_pt_min=0.4,double bin_pt_max=1,double bin_cent_min=0, double bin_cent_max=10,bool is_final=false){
 TH1D::SetDefaultSumw2();
 TH2D::SetDefaultSumw2(true);
 
@@ -97,7 +97,6 @@ nt->Draw("eff_accept:eta:phi>>p_eff_acceptance",Form("weight*(abs(eta)<2.4&& pt>
 
 TProfile * p_eff_rmin = new TProfile("p_eff_rmin",";#phi;#eta;efficiency",n_rmin_bins,rmin_bins);
 nt->Draw("eff_rmin:rmin_reco>>p_eff_rmin",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max),"prof");
-
 
 TFile *f_efficiency;
  if(is_final){
