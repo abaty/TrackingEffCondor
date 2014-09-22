@@ -95,8 +95,7 @@ void track_ntupler_cent_fake(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,
  TNtuple *nt_track = new TNtuple("nt_track","",trackVars.data());
 
   for(int ifile=2; ifile<4; ifile++){
-  std::cout<<ifile<<std::endl;
-  int nentries = ftrk[ifile]->GetEntriesFast();
+  std::cout<<ifile<<std::endl; 
   
   for(int jentry=0;jentry<nevents[ifile];jentry++){
   if((jentry%10000)==0) std::cout<<jentry<<"/"<<nevents[ifile]<< "   File:" << ifile <<std::endl;

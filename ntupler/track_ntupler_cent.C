@@ -99,7 +99,6 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
 //note we only use files 2-4 for now for stats reasons
   for(int ifile=2; ifile<4; ifile++){
   std::cout<<ifile<<std::endl;
-  int nentries = ftrk[ifile]->GetEntriesFast();
 
 //event loop 
   for(int jentry=0;jentry<nevents[ifile];jentry++){
