@@ -24,7 +24,7 @@ void run(int i = 0){
   while(icent_step<=ncent_step && iaccept_step<=naccept_step && ipt_step<=npt_step && irmin_step<=nrmin_step[i]){
     std::cout << "cent:"<< icent_step << "  accept: " << iaccept_step << "  pt: " << ipt_step << "  rmin: " << irmin_step << std::endl;
     track_ntupler_cent_fake(icent_step,iaccept_step,ipt_step,irmin_step,ptmin[i],ptmax[i],centmin[i],centmax[i],nevents);
-    plot_fake_cent(icent_step,iaccept_step,ipt_step,irmin_step,ptmin[i],ptmax[i],centmin[i],centmax[i],nevents);
+    plot_fake_cent(icent_step,iaccept_step,ipt_step,irmin_step,ptmin[i],ptmax[i],centmin[i],centmax[i]);
     if(istep%4==0) icent_step++;
     if(istep%4==1) iaccept_step++;
     if(istep%4==2) ipt_step++;
@@ -35,7 +35,7 @@ void run(int i = 0){
   if((istep-1)%4==1) iaccept_step--;
   if((istep-1)%4==2) ipt_step--;
   if((istep-1)%4==3) irmin_step--;
-  plot_fake_cent(icent_step,iaccept_step,ipt_step,irmin_step,ptmin[i],ptmax[i],centmin[i],centmax[i],nevents,1);
+  plot_fake_cent(icent_step,iaccept_step,ipt_step,irmin_step,ptmin[i],ptmax[i],centmin[i],centmax[i],1);
 }
 
 int main(int argc, char *argv[]){
