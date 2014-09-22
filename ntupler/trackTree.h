@@ -44,7 +44,7 @@ public :
    Int_t           nTrk;
    Float_t         trkPt[10000];   //[nTrk]
    Float_t         trkPtError[10000];   //[nTrk]
-   Int_t           trkNHit[10000];   //[nTrk]
+   //Int_t           trkNHit[10000];   //[nTrk]
    //Int_t           trkNlayer[10000];   //[nTrk]
    Float_t         trkEta[10000];   //[nTrk]
    Float_t         trkPhi[10000];   //[nTrk]
@@ -58,7 +58,7 @@ public :
    Float_t         trkDz1[10000];   //[nTrk]
    Float_t         trkDzError1[10000];   //[nTrk]
    Bool_t          trkFake[10000];   //[nTrk]
-   Float_t         trkAlgo[10000];   //[nTrk]
+   //Float_t         trkAlgo[10000];   //[nTrk]
    //Int_t           pfType[10000];   //[nTrk]
    //Float_t         pfCandPt[10000];   //[nTrk]
    //Float_t         pfSumEcal[10000];   //[nTrk]
@@ -104,7 +104,7 @@ public :
    TBranch        *b_nTrk;   //!
    TBranch        *b_trkPt;   //!
    TBranch        *b_trkPtError;   //!
-   TBranch        *b_trkNHit;   //!
+   //TBranch        *b_trkNHit;   //!
    //TBranch        *b_trkNlayer;   //!
    TBranch        *b_trkEta;   //!
    TBranch        *b_trkPhi;   //!
@@ -118,7 +118,7 @@ public :
    TBranch        *b_trkDz1;   //!
    TBranch        *b_trkDzError1;   //!
    TBranch        *b_trkFake;   //!
-   TBranch        *b_trkAlgo;   //!
+   //TBranch        *b_trkAlgo;   //!
    //TBranch        *b_pfType;   //!
    //TBranch        *b_pfCandPt;   //!
    //TBranch        *b_pfSumEcal;   //!
@@ -249,7 +249,7 @@ void trackTree::Init(TTree *tree)
    fChain->SetBranchAddress("nTrk", &nTrk, &b_nTrk);
    fChain->SetBranchAddress("trkPt", trkPt, &b_trkPt);
    fChain->SetBranchAddress("trkPtError", trkPtError, &b_trkPtError);
-   fChain->SetBranchAddress("trkNHit", trkNHit, &b_trkNHit);
+   //fChain->SetBranchAddress("trkNHit", trkNHit, &b_trkNHit);
    //fChain->SetBranchAddress("trkNlayer", trkNlayer, &b_trkNlayer);
    fChain->SetBranchAddress("trkEta", trkEta, &b_trkEta);
    fChain->SetBranchAddress("trkPhi", trkPhi, &b_trkPhi);
@@ -263,7 +263,7 @@ void trackTree::Init(TTree *tree)
    fChain->SetBranchAddress("trkDz1", trkDz1, &b_trkDz1);
    fChain->SetBranchAddress("trkDzError1", trkDzError1, &b_trkDzError1);
    fChain->SetBranchAddress("trkFake", trkFake, &b_trkFake);
-   fChain->SetBranchAddress("trkAlgo", trkAlgo, &b_trkAlgo);
+   //fChain->SetBranchAddress("trkAlgo", trkAlgo, &b_trkAlgo);
    //fChain->SetBranchAddress("pfType", pfType, &b_pfType);
    //fChain->SetBranchAddress("pfCandPt", pfCandPt, &b_pfCandPt);
    //fChain->SetBranchAddress("pfSumEcal", pfSumEcal, &b_pfSumEcal);
