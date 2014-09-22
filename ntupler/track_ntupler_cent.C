@@ -23,7 +23,7 @@
 #include "TLine.h"
 #include "trackTree.C"
 
-void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int nstep_rmin=1,double bin_pt_min=8,double bin_pt_max=100,double bin_cent_min=0,double bin_cent_max=10,int *nevents){
+void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int nstep_rmin=1,double bin_pt_min=8,double bin_pt_max=100,double bin_cent_min=0,double bin_cent_max=10,int *nevents=0){
  TH1D::SetDefaultSumw2();
 
  //converted to nb

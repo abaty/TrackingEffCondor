@@ -5,7 +5,7 @@ then
 fi
 
 now="trkfake_corr_$(date +"%Y_%m_%d__%H_%M_%S")"
-njobs=1
+njobs=29
 
 mkdir $now
 cp centrality_weights.root $now
@@ -15,6 +15,7 @@ cat run_fake.condor | sed "s@log_flag@$now@g" | sed "s@dir_flag@$PWD/$now@g" | s
 NAME="run_fake.C"
 g++ $NAME $(root-config --cflags --libs) -Werror -Wall -O2 -o "${NAME/%.C/}.exe"
 cp run_fake.exe $now
+rm run_fake.exe
 echo
 cat $now/run_fake.condor
 echo 

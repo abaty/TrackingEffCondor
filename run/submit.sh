@@ -5,7 +5,7 @@ then
 fi
 
 now="trkeff_corr_$(date +"%Y_%m_%d__%H_%M_%S")"
-njobs=1
+njobs=29
 
 mkdir $now
 cp centrality_weights.root $now
@@ -15,6 +15,7 @@ cat run.condor | sed "s@log_flag@$now@g" | sed "s@dir_flag@$PWD/$now@g" | sed "s
 NAME="run.C"
 g++ $NAME $(root-config --cflags --libs) -Werror -Wall -O2 -o "${NAME/%.C/}.exe"
 cp run.exe $now
+rm run.exe
 echo
 cat $now/run.condor
 echo 
