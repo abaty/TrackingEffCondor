@@ -42,7 +42,7 @@ float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11
  infname[6] = "/HiForest_PYTHIA_HYDJET_pthat370_Track9_Jet30_matchEqR_merged_forest_0";
 
  //full sample would be 350000,150000
- const int nevents[7] = {0,0,120000,0,0,0,0};
+ const int nevents[7] = {0,0,50000,0,0,0,0};
  
  trackTree * ftrk[7];
  HiTree * fhi[7];
@@ -107,7 +107,7 @@ float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11
  }
 
  //output file and tree
- TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple.root","recreate");
+ TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple_eta_gt27_10_30_2014.root","recreate");
  
  std::string particleVars="pt:matchedpt:eta:phi:rmin:trackselect:cent:eff:cent_weight:pthat_weight:weight:pt1:pt2:dphi:asym:eta1:eta2:phi1:phi2:r_lead:r_sublead:isLeadClosest:isSubleadClosest";
  TNtuple *nt_particle = new TNtuple("nt_particle","",particleVars.data());
@@ -241,14 +241,18 @@ if(njet>1){
    float trackselect=(ftrk[ifile]->mtrkQual[itrk] && fabs(ftrk[ifile]->mtrkDxy1[itrk]/ftrk[ifile]->mtrkDxyError1[itrk])<3.0 && fabs(ftrk[ifile]->mtrkDz1[itrk]/ftrk[ifile]->mtrkDzError1[itrk])<3 && (ftrk[ifile]->mtrkPtError[itrk]/ftrk[ifile]->mtrkPt[itrk])<0.1);
    float eta=ftrk[ifile]->pEta[itrk];
 
-   if(fabs(eta)>2.4) continue; //acceptance of the tracker
+
+//extra eta cut here
+   if(fabs(eta)>2.4 || fabs(eta)<1.7) continue; //acceptance of the tracker
    float pt=ftrk[ifile]->pPt[itrk];
    float mpt=ftrk[ifile]->mtrkPt[itrk];
    float phi=ftrk[ifile]->pPhi[itrk];
    float rmin=199;
  
    for(int ijet=0;ijet<fjet[ifile]->nref;ijet++){
-     if(fabs(fjet[ifile]->jteta[ijet])>2 || fjet[ifile]->jtpt[ijet]<50) continue;
+
+
+     if(fabs(fjet[ifile]->jteta[ijet])>2.7 || fjet[ifile]->jtpt[ijet]<50) continue;
      float r_reco=sqrt(pow(eta-fjet[ifile]->jteta[ijet],2)+pow(acos(cos(phi-fjet[ifile]->jtphi[ijet])),2));
      if(r_reco<rmin)rmin=r_reco;
     }
@@ -296,7 +300,9 @@ if(njet>1){
    float trackselect=(ftrk[ifile]->highPurity[itrk] && fabs(ftrk[ifile]->trkDxy1[itrk]/ftrk[ifile]->trkDxyError1[itrk])<3.0 && fabs(ftrk[ifile]->trkDz1[itrk]/ftrk[ifile]->trkDzError1[itrk])<3 && (ftrk[ifile]->trkPtError[itrk]/ftrk[ifile]->trkPt[itrk])<0.1);
    float eta=ftrk[ifile]->trkEta[itrk];
 
-   if(fabs(eta)>2.4) continue; //acceptance of the tracker   
+
+//extra eta cut here
+   if(fabs(eta)>2.4 || fabs(eta)<1.7) continue; //acceptance of the tracker   
    
    float pt=ftrk[ifile]->trkPt[itrk];
    float phi=ftrk[ifile]->trkPhi[itrk];
@@ -306,11 +312,12 @@ if(njet>1){
 
    //find rmin; 
      for(int ijet=0;ijet<fjet[ifile]->nref;ijet++){
-     if(fabs(fjet[ifile]->jteta[ijet])>2 || fjet[ifile]->jtpt[ijet]<50) continue;
+
+//eta cut here added
+     if(fabs(fjet[ifile]->jteta[ijet])>2.7 || fjet[ifile]->jtpt[ijet]<50) continue;
      float r_reco=sqrt(pow(eta-fjet[ifile]->jteta[ijet],2)+pow(acos(cos(phi-fjet[ifile]->jtphi[ijet])),2));
      if(r_reco<rmin)rmin=r_reco;
     }
-
 
     float isLeadClosest = 0;
     float isSubleadClosest = 0;
