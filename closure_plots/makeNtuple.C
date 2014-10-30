@@ -61,7 +61,7 @@ void makeNtuple(){
    evtSel[ifile]->SetBranchAddress("pcollisionEventSelection", &pcoll[ifile]);
   }
 
- TFile * centWeightsFile = new TFile("centrality_weights_other.root","read");
+ TFile * centWeightsFile = new TFile("centrality_weights.root","read");
  TH1F * centWeights = new TH1F("centWeight","centWeight",100,0,200);
  centWeights = (TH1F*)centWeightsFile->Get("centrality_weight");
  

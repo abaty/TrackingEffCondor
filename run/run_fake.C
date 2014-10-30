@@ -46,7 +46,7 @@ int main(int argc, char *argv[]){
 
   //for resubmitting
   int argument = std::atoi(argv[1]);
-  // if(argument==0) argument=25;
+  //if(argument==0) argument=1;
   //else if(argument==1) argument=26;
   //else if(argument==2) argument=27;
 

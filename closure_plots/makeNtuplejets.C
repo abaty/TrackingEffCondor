@@ -25,33 +25,32 @@
 void makeNtuple(){
  TH1D::SetDefaultSumw2();
 
-//all statistics 
- //float pthatWeight[5] = {4.29284e-01,2.99974e-02,3.38946e-4,1.06172e-4,2.79631e-5};
-//100k events
-// float pthatWeight[5] = {0.429284,0.0299974,0.000949812,0.000232709,7.61038e-05};
- //float vertexShift = 0.501501;
-//100k events high pthat
+//weightings for samples produced on 09_21_2014
+float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11753e-05};
+  float vertexShift = 0.436781;
 
- float pthatWeight[5] = {0,0,0.000654317,0.000156607,5.07966e-05};
- float vertexShift = 0.406408;
+ TString directory="/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/";
+ 
 
- const int nevents = 286000;
+ const char* infname[7];
+ infname[0] = "/HiForest_PYTHIA_HYDJET_pthat30_Track9_Jet30_matchEqR_merged_forest_0";
+ infname[1] = "/HiForest_PYTHIA_HYDJET_pthat50_Track9_Jet30_matchEqR_merged_forest_0";
+ infname[2] = "/HiForest_PYTHIA_HYDJET_pthat80_Track9_Jet30_matchEqR_merged_forest_0";
+ infname[3] = "/HiForest_PYTHIA_HYDJET_pthat120_Track9_Jet30_matchEqR_merged_forest_0";
+ infname[4] = "/HiForest_PYTHIA_HYDJET_pthat220_Track9_Jet30_matchEqR_merged_forest_0";
+ infname[5] = "/HiForest_PYTHIA_HYDJET_pthat280_Track9_Jet30_matchEqR_merged_forest_0";
+ infname[6] = "/HiForest_PYTHIA_HYDJET_pthat370_Track9_Jet30_matchEqR_merged_forest_0";
 
- TString directory="/mnt/hadoop/cms/store/user/velicanu/";
- const char* infname[5];
- infname[0] = "/HydjetDrum_Pyquen_Dijet30_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
- infname[1] = "/HydjetDrum_Pyquen_Dijet50_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
- infname[2] = "/HydjetDrum_Pyquen_Dijet80_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
- infname[3] = "/HydjetDrum_Pyquen_Dijet100_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
- infname[4] = "/HydjetDrum_Pyquen_Dijet120_FOREST_Track8_Jet24_FixedPtHatJES_v0/0";
-
- trackTree * ftrk[5];
- HiTree * fhi[5];
- t * fjet[5];
- TFile * evtSelFile[5];
- TTree * evtSel[5];
- int pcoll[5];
- for(int ifile=0; ifile<5; ifile++){
+ //full sample would be 350000,150000
+ const int nevents[7] = {0,0,120000,0,0,0,0};
+ 
+ trackTree * ftrk[7];
+ HiTree * fhi[7];
+ t * fjet[7];
+ TFile * evtSelFile[7];
+ TTree * evtSel[7];
+ int pcoll[7];
+ for(int ifile=2; ifile<3; ifile++){
    ftrk[ifile] = new trackTree(Form("%s/%s.root",directory.Data(),infname[ifile]));
    fhi[ifile] = new HiTree(Form("%s/%s.root",directory.Data(),infname[ifile]));
    fjet[ifile] = new t(Form("%s/%s.root",directory.Data(),infname[ifile]));
@@ -60,11 +59,11 @@ void makeNtuple(){
    evtSel[ifile]->SetBranchAddress("pcollisionEventSelection", &pcoll[ifile]);
   }
 
- TFile * centWeightsFile = new TFile("centrality_weights_other.root","read");
+ TFile * centWeightsFile = new TFile("centrality_weights_MB.root","read");
  TH1F * centWeights = new TH1F("centWeight","centWeight",100,0,200);
  centWeights = (TH1F*)centWeightsFile->Get("centrality_weight");
  
- //pt bins for track efficiency correction Yen-Jie
+ //pt bins for track efficiency correction 
  int npt_fake=29; 
  double ptmin_fake[]={0.5 ,0.5 ,0.5 ,0.5 ,0.5 ,0.55 ,0.55 ,0.55 ,0.55 ,0.55 ,0.65,0.65,0.65,0.65,0.65,0.8,0.8,0.8,0.8,0.8,1 ,1 ,1 ,1 ,1  ,3 ,3 ,3  ,8};
  double ptmax_fake[]={0.55,0.55,0.55,0.55,0.55,0.65 ,0.65 ,0.65 ,0.65 ,0.65 ,0.8 ,0.8 ,0.8 ,0.8 ,0.8 ,1  ,1  ,1  ,1  ,1  ,3 ,3 ,3 ,3 ,3  ,8 ,8 ,8  ,300};
@@ -87,7 +86,7 @@ void makeNtuple(){
  TProfile *p_eff_pt[npt_eff]; 
  TProfile *p_eff_rmin[npt_eff]; 
  for(int ipt=0; ipt<npt_eff;ipt++){
-   f_eff[ipt]= new TFile(Form("../final_hists/eff_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_eff[ipt]),(int)(100*ptmax_eff[ipt]),(int)(0.5*cent_min[ipt]),(int)(0.5*cent_max[ipt])));
+   f_eff[ipt]= new TFile(Form("../final_hists_Vs3Calo/eff_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_eff[ipt]),(int)(100*ptmax_eff[ipt]),(int)(0.5*cent_min[ipt]),(int)(0.5*cent_max[ipt])));
    p_eff_cent[ipt]=(TProfile*)f_eff[ipt]->Get("p_eff_cent");
    p_eff_pt[ipt]=(TProfile*)f_eff[ipt]->Get("p_eff_pt");
    p_eff_accept[ipt]=(TProfile2D*)f_eff[ipt]->Get("p_eff_acceptance");
@@ -100,7 +99,7 @@ void makeNtuple(){
  TProfile *p_fake_pt[npt_fake]; 
  TProfile *p_fake_rmin[npt_fake]; 
  for(int ipt=0; ipt<npt_fake;ipt++){
-   f_fake[ipt]= new TFile(Form("../final_hists/fake_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_fake[ipt]),(int)(100*ptmax_fake[ipt]),(int)(0.5*cent_min_fake[ipt]),(int)(0.5*cent_max_fake[ipt])));
+   f_fake[ipt]= new TFile(Form("../final_hists_Vs3Calo/fake_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_fake[ipt]),(int)(100*ptmax_fake[ipt]),(int)(0.5*cent_min_fake[ipt]),(int)(0.5*cent_max_fake[ipt])));
    p_fake_cent[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_cent");
    p_fake_pt[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_pt");
    p_fake_accept[ipt]=(TProfile2D*)f_fake[ipt]->Get("p_fake_acceptance");
@@ -108,7 +107,7 @@ void makeNtuple(){
  }
 
  //output file and tree
- TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/track_ntuple_pthatCombo_large_jets_rminGT16_18_09_2014.root","recreate");
+ TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple.root","recreate");
  
  std::string particleVars="pt:matchedpt:eta:phi:rmin:trackselect:cent:eff:cent_weight:pthat_weight:weight:pt1:pt2:dphi:asym:eta1:eta2:phi1:phi2:r_lead:r_sublead:isLeadClosest:isSubleadClosest";
  TNtuple *nt_particle = new TNtuple("nt_particle","",particleVars.data());
@@ -119,13 +118,12 @@ void makeNtuple(){
 
  //loop over events
 
- for(int ifile=2; ifile<5; ifile++){
+ for(int ifile=2; ifile<3; ifile++){
  std::cout<<ifile<<std::endl;
  int nentries = ftrk[ifile]->GetEntriesFast();
- if(nevents<nentries) nentries = nevents; 
-for(int jentry=0;jentry<nentries;jentry++){
+for(int jentry=0;jentry<nevents[ifile];jentry++){
  //for(int jentry=0;jentry<5000;jentry++){
-  if((jentry%1000)==0) std::cout<<jentry<<"/"<<nentries<<std::endl;
+  if((jentry%10000)==0) std::cout<<jentry<<"/"<<nevents[ifile]<<std::endl;
   ftrk[ifile]->GetEntry(jentry);
   fhi[ifile]->GetEntry(jentry);
   fjet[ifile]->GetEntry(jentry);
@@ -142,13 +140,17 @@ for(int jentry=0;jentry<nentries;jentry++){
 
   if(fjet[ifile]->pthat <50)       pthat_weight = pthatWeight[0];
   else if(fjet[ifile]->pthat <80)  pthat_weight = pthatWeight[1];
-  else if(fjet[ifile]->pthat <100) pthat_weight = pthatWeight[2];
-  else if(fjet[ifile]->pthat <120) pthat_weight = pthatWeight[3];
-  else                             pthat_weight = pthatWeight[4];
+  else if(fjet[ifile]->pthat <120) pthat_weight = pthatWeight[2];
+  else if(fjet[ifile]->pthat <220) pthat_weight = pthatWeight[3];
+  else if(fjet[ifile]->pthat <280) pthat_weight = pthatWeight[4];
+  else if(fjet[ifile]->pthat <370) pthat_weight = pthatWeight[5];
+  else                             pthat_weight = pthatWeight[6];
+
+//pthat weight for MBi
+//delete for non-MB
 
   cent_weight = centWeights->GetBinContent(centWeights->FindBin(cent));
   weight = pthat_weight*cent_weight;
-
 
   float pt1=-99;
   float phi1=-99;
@@ -193,7 +195,7 @@ std::vector<std::pair<float, std::pair<float,std::pair<float, std::pair<float,st
   std::sort(jets.begin(),jets.end());
 
 //cut to study jet effects, removing no-jet events
-  if(njet == 0) continue;
+//  if(njet == 0) continue;
 
   if(njet>0){
    pt1=       jets[njet-1].first;
@@ -259,8 +261,8 @@ if(njet>1){
     if(r_sublead == rmin) isSubleadClosest = 1;   
 
   //cut for high R_lead or R_sublead so I can make a large ntuple
-    if(isLeadClosest == 0 && isSubleadClosest == 0) continue;
-    if(rmin < 1.6) continue;
+  //  if(isLeadClosest == 0 && isSubleadClosest == 0) continue;
+  //  if(rmin < 1.6) continue;
     
 
 
@@ -318,8 +320,8 @@ if(njet>1){
     if(r_sublead == rmin) isSubleadClosest = 1;
 
   //cut for high R_lead or R_sublead so I can make a large ntuple
-      if(isLeadClosest == 0 && isSubleadClosest == 0) continue;
-      if(rmin < 1.6) continue;
+  //    if(isLeadClosest == 0 && isSubleadClosest == 0) continue;
+  //    if(rmin < 1.6) continue;
 
 
    //get efficiency and fake rate correction for the track Yen-Jie
