@@ -59,7 +59,7 @@ float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11
    evtSel[ifile]->SetBranchAddress("pcollisionEventSelection", &pcoll[ifile]);
   }
 
- TFile * centWeightsFile = new TFile("centrality_weights_MB.root","read");
+ TFile * centWeightsFile = new TFile("centrality_weights.root","read");
  TH1F * centWeights = new TH1F("centWeight","centWeight",100,0,200);
  centWeights = (TH1F*)centWeightsFile->Get("centrality_weight");
  
@@ -145,9 +145,6 @@ for(int jentry=0;jentry<nevents[ifile];jentry++){
   else if(fjet[ifile]->pthat <280) pthat_weight = pthatWeight[4];
   else if(fjet[ifile]->pthat <370) pthat_weight = pthatWeight[5];
   else                             pthat_weight = pthatWeight[6];
-
-//pthat weight for MBi
-//delete for non-MB
 
   cent_weight = centWeights->GetBinContent(centWeights->FindBin(cent));
   weight = pthat_weight*cent_weight;
