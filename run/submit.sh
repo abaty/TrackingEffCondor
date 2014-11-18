@@ -10,6 +10,7 @@ njobs=1
 mkdir $now
 cp centrality_weights.root $now
 cp run.sh $now
+cp FFJEC_correction_PF_akVs3Calo_pt2.root $now
 cat run.condor | sed "s@log_flag@$now@g" | sed "s@dir_flag@$PWD/$now@g" | sed "s@user_flag@$USER@g" |  sed "s@arglist@ @g" | sed "s@transfer_filelist@run.exe@g" | sed "s@njobs@$njobs@g" > $now/run.condor
 
 NAME="run.C"

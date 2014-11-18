@@ -81,20 +81,20 @@ struct fragmentation_JEC
   
   void set_correction()
   {
-   cout<<"setting correction"<<endl;
+   std::cout<<"setting correction"<<std::endl;
    if(do_PbPb){
     algo_corr=Form("akVs%dCalo",radius);
-    correction_file = new TFile(Form("corrections_id1_ph/FFJEC_correction_PF_%s_pt%d.root",algo_corr.Data(),(int)PF_pt_cut));
+    correction_file = new TFile(Form("FFJEC_correction_PF_%s_pt%d.root",algo_corr.Data(),(int)PF_pt_cut));
     for(int icent=0;icent<ncent;icent++){
 	 correction_matrix[icent]=(TH2D*)correction_file->Get(Form("pNtrk_pt%d",icent));
     } 
    }else{
   	algo_corr=Form("ak%dCalo",radius);
     if(do_pp_tracking){
-     correction_file = new TFile(Form("corrections_pyt_id1_pptracking/FFJEC_correction_PF_%s_pt%d.root",algo_corr.Data(),(int)PF_pt_cut));
+     correction_file = new TFile(Form("FFJEC_correction_PF_%s_pt%d.root",algo_corr.Data(),(int)PF_pt_cut));
      correction_matrix[0]=(TH2D*)correction_file->Get("pNtrk_pt");    
     }else{
-     correction_file = new TFile(Form("corrections_id1/FFJEC_correction_PF_%s_pt%d.root",algo_corr.Data(),(int)PF_pt_cut));
+     correction_file = new TFile(Form("FFJEC_correction_PF_%s_pt%d.root",algo_corr.Data(),(int)PF_pt_cut));
      correction_matrix[0]=(TH2D*)correction_file->Get("pNtrk_pt");
     }
    }

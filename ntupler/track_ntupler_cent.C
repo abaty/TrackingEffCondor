@@ -22,6 +22,8 @@
 #include "TNtuple.h"
 #include "TLine.h"
 #include "trackTree.C"
+#include "pfCand.C"
+#include "fragmentation_JEC_correction/fragmenation_JEC/fragmentation_JEC.h"
 
 void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int nstep_rmin=1,double bin_pt_min=8,double bin_pt_max=100,double bin_cent_min=0,double bin_cent_max=10,int *nevents=0){
  TH1D::SetDefaultSumw2();
@@ -40,6 +42,7 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
  infname[5] = "/HiForest_PYTHIA_HYDJET_pthat280_Track9_Jet30_matchEqR_merged_forest_0";
  infname[6] = "/HiForest_PYTHIA_HYDJET_pthat370_Track9_Jet30_matchEqR_merged_forest_0";
 
+ pfCand * fpf[7];
  trackTree * ftrk[7];
  HiTree * fhi[7];
  t * fjet[7];
@@ -50,6 +53,8 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
    ftrk[ifile] = new trackTree(Form("%s/%s.root",directory.Data(),infname[ifile]));
    fhi[ifile] = new HiTree(Form("%s/%s.root",directory.Data(),infname[ifile]));
    fjet[ifile] = new t(Form("%s/%s.root",directory.Data(),infname[ifile]));
+   fpf[ifile] = new pfCand(Form("%s/%s.root",directory.Data(),infname[ifile]));
+
    evtSelFile[ifile] = new TFile(Form("%s/%s.root",directory.Data(),infname[ifile]),"read");
    evtSel[ifile] = (TTree*) evtSelFile[ifile]->Get("skimanalysis/HltTree");
    evtSel[ifile]->SetBranchAddress("pcollisionEventSelection", &pcoll[ifile]); 
@@ -87,13 +92,16 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
  TH1F * centWeights = new TH1F("centWeight","centWeight",100,0,200);
  centWeights = (TH1F*)centWeightsFile->Get("centrality_weight");
 
+ //initializing JEC Correction
+ fragmentation_JEC *FF_JEC=new fragmentation_JEC(3, true);
+ FF_JEC->set_correction();
+
  TFile *outf= new TFile(Form("track_ntuple_cent_%d_accept_%d_pt_%d_rmin_%d_ptmin%d_ptmax%d_centmin%d_centmax%d.root",nstep_cent,nstep_accept,nstep_pt,nstep_rmin,(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max),"recreate");
 
  std::string trackVars="pthat:pt:mpt:eta:phi:trackselect:cent:rmin_reco:eff_cent:eff_accept:eff_pt:eff_rmin:eff:weight:pthat_weight:cent_weight";
 
  
  TNtuple *nt_track = new TNtuple("nt_track","",trackVars.data());
-
 
 //file loop here
 //note we only use files 2-4 for now for stats reasons
@@ -107,6 +115,7 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
   ftrk[ifile]->GetEntry(jentry);
   fhi[ifile]->GetEntry(jentry);
   fjet[ifile]->GetEntry(jentry);
+  fpf[ifile]->GetEntry(jentry);
   evtSel[ifile]->GetEntry(jentry);
 
   float cent=fhi[ifile]->hiBin;
@@ -135,6 +144,8 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
 
   cent_weight = centWeights->GetBinContent(centWeights->FindBin(cent));  
   weight = pthat_weight*cent_weight;
+
+
 
 //particle loop here
   for(int itrk=0;itrk<ftrk[ifile]->nParticle;itrk++){
@@ -185,6 +196,8 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
   outf->Close();
 
 //some memory cleanup
+  delete FF_JEC;  
+
   for(int icent=0; icent<nstep_cent;icent++){
   	f_eff_cent[icent]->Close();	
 	}
@@ -201,6 +214,7 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
     fjet[ifile]->Close();
     fhi[ifile]->Close();
     ftrk[ifile]->Close();
+    fpf[ifile]->Close();
     evtSelFile[ifile]->Close();
   }
   centWeightsFile->Close();
