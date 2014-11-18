@@ -9,7 +9,7 @@ void run(int i = 0){
   double centmin[29]= {0   ,10  ,20  ,30  ,50  ,0    ,10   ,20   ,30   ,50   ,0   ,10  ,20  ,30  ,50  ,0  ,10 ,20 ,30 ,50 ,0 ,10,20,30,50 ,0 ,10,20 ,0};
   double centmax[29]= {10  ,20  ,30  ,50  ,100 ,10   ,20   ,30   ,50   ,100  ,10  ,20  ,30  ,50  ,100 ,10 ,20 ,30 ,50 ,100,10,20,30,50,100,10,20,100,100}; 
   
-  int nevents[7] =  {0,0,350000,150000,0,0,0};
+  int nevents[7] =  {0,0,1050,450,0,0,0};
   int ncent_step=   4;
   int naccept_step= 4;
   int npt_step=     4;
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]){
     return 1;
   }
   int argument = std::atoi(argv[1]);
-  //if(argument==0) argument=18;
+  if(argument==0) argument=20;
   //else if(argument==1) argument=26;
   //else if(argument==2) argument=27;
 

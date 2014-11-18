@@ -76,7 +76,7 @@ p_rmin_corr->SetMaximum(1.1);
 p_rmin_corr->SetMinimum(0.9);
 
 /////output file to be used in the ntupler in the next step/////
-TFile *outf = new TFile(Form("eff_corr_nstep_cent%d_accept%d_pt%d_rmin%d_pt%d_%d_cent%d_%d.root",nstep_cent,nstep_accept,nstep_pt,nstep_rmin,(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max),"recreate");
+TFile *outf = new TFile(Form("fake_corr_nstep_cent%d_accept%d_pt%d_rmin%d_pt%d_%d_cent%d_%d.root",nstep_cent,nstep_accept,nstep_pt,nstep_rmin,(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max),"recreate");
 
 p_cent_corr->Write();
 p_pt_corr->Write();

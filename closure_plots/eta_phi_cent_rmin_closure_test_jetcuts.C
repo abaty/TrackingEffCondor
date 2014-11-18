@@ -117,7 +117,7 @@ void legFormat(TLegend* leg){
   leg->AddEntry((TObject*)0,"CMS Preliminary","");
   leg->AddEntry((TObject*)0,"PYTHIA+HYDJET","");
   leg->AddEntry((TObject*)0,"Vs5Calo jets, HI tracking","");
-  leg->AddEntry((TObject*)0,"Vs3Calo Corrections"),"";
+  leg->AddEntry((TObject*)0,"Vs3Calo Corrections","");
 }
 
 void drawClosure(TLine * l, TH1D * histo, int i=0){
@@ -151,7 +151,7 @@ const float y2[10]= {0.95 ,0.5, 0.95 ,0.95,0.95,0.95,0.95,0.9,0.9,0.95};
  
 
 TH1D::SetDefaultSumw2();
-TFile * f= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/MC_Check.root");
+TFile * f= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple_eta_gt27_10_30_2014.root");
 TTree * nt_track = (TTree*)f->Get("nt_track");
 TTree * nt_particle = (TTree*)f->Get("nt_particle");
 
@@ -201,7 +201,7 @@ l->SetLineColor(1);
 //TCut jetCut = "isSubleadClosest && pt2>50 && pt1>120 && TMath::Abs(eta1)<0.5 && TMath::Abs(eta2)<0.5";
 //TCut jetCut = "pt2>50 && pt1>120 && TMath::Abs(eta1)<0.5 && TMath::Abs(eta2)<0.5 && TMath::Abs(dphi)<5*TMath::Pi()/6.0";
 //TCut jetCut = "pt2>50 && pt1>120 && TMath::Abs(eta1)<0.5 && TMath::Abs(eta2)<0.5";
-TCut jetCut = "";
+TCut jetCut = "eta>2.0 || eta<-2.0";
 TCut ptCut  = "pt>0.5";
 
 //eff correction
@@ -353,12 +353,13 @@ leg4->AddEntry(h_reco,"reco","p");
 leg4->AddEntry(h_reco_fakecorr_effcorr,"reco corr","p");
 
 //Other legend entries here
-leg4->AddEntry((TObject*)0 ,"Leading jet p_{T}>120","");
-leg4->AddEntry((TObject*)0 ,"Subleading jet p_{T}>50","");
-leg4->AddEntry((TObject*)0 ,"Jet |#eta|<0.5","");
+//leg4->AddEntry((TObject*)0 ,"Leading jet p_{T}>120","");
+//leg4->AddEntry((TObject*)0 ,"Subleading jet p_{T}>50","");
+//leg4->AddEntry((TObject*)0 ,"Jet |#eta|<0.5","");
 //leg4->AddEntry((TObject*)0 ,"|d#phi|<5#pi/6","");
-//leg4->AddEntry((TObject*)0, "rsublead = rmin","");
-//leg4->AddEntry((TObject*)0, "cent<30%","");
+leg4->AddEntry((TObject*)0, "Jets: |#eta|<2.7","");
+leg4->AddEntry((TObject*)0, "Tracks: 2.0<|#eta|<2.4","");
+
 
 TCanvas *c4 = new TCanvas("c4","",600,600);
 makeMultiPanelCanvas(c4,1,2,0.0,0.0,0.15,0.15,0.02);
@@ -377,6 +378,6 @@ c4->cd(2);
 if(m==9) c4->cd(2)->SetLogx();
 drawClosure(l,h_genreco_fullcorr,2);
 
-c4->SaveAs(Form("closure_plots/MB_Check/%s_akPu3_MB_jetcut.png",var1[m]));
-c4->SaveAs(Form("closure_plots/MB_Check/%s_akPu3_MB_jetcut.pdf",var1[m]));
+c4->SaveAs(Form("closure_plots/Jet_effects_at_edge_check/%s_akVs3_eta_20_24_jeteta_lt27.png",var1[m]));
+c4->SaveAs(Form("closure_plots/Jet_effects_at_edge_check/%s_akVs3_eta_20_24_jeteta_lt27.pdf",var1[m]));
 }

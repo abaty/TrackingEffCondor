@@ -58,7 +58,7 @@ void track_ntupler_cent_fake(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,
  TFile *f_eff_cent[nstep_cent];
  TProfile *p_eff_cent[nstep_cent]; 
  for(int icent=0; icent<nstep_cent;icent++){
-   f_eff_cent[icent]= new TFile(Form("eff_corr_nstep_cent%d_accept%d_pt%d_rmin%d_pt%d_%d_cent%d_%d.root",icent, icent, icent,icent,(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max));
+   f_eff_cent[icent]= new TFile(Form("fake_corr_nstep_cent%d_accept%d_pt%d_rmin%d_pt%d_%d_cent%d_%d.root",icent, icent, icent,icent,(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max));
    p_eff_cent[icent]=(TProfile*)f_eff_cent[icent]->Get("p_cent_corr");
  }
 
