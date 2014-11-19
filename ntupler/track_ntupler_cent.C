@@ -146,7 +146,36 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
   weight = pthat_weight*cent_weight;
 
 
-
+//implementing new FFcorrection; assumes input jet tree is sorted by pt
+  float jetPtCorr[10] = {0};
+  float jetEta[10] = {0};
+  float jetPhi[10] = {0};  
+  
+  for(int ijet=0;(ijet<fjet[ifile]->nref) && ijet<10 && fjet[ifile]->jtpt[ijet]>40;ijet++){
+    int npf=0;
+    for(int ipf=0;ipf<fpf[ifile]->nPFpart;ipf++){
+      if(FF_JEC->passes_PF_selection(fpf[ifile]->pfVsPt[ipf], fpf[ifile]->pfEta[ipf], fpf[ifile]->pfPhi[ipf], fpf[ifile]->pfId[ipf], fjet[ifile]->jteta[ijet], fjet[ifile]->jtphi[ijet])) npf++;
+    }
+    jetPtCorr[ijet]=FF_JEC->get_corrected_pt(fjet[ifile]->jtpt[ijet], npf);
+    jetEta[ijet] = fjet[ifile]->jteta[ijet];
+    jetPhi[ijet] = fjet[ifile]->jtphi[ijet];
+  }
+  int leadIndx = 0;
+  int subleadIndx = 0;
+  for(int i=0; i<10; i++){
+    if(jetPtCorr[leadIndx] < jetPtCorr[i]){
+      subleadIndx = leadIndx;
+      leadIndx = i;
+    } 
+    else if (jetPtCorr[subleadIndx] < jetPtCorr[i]){
+      subleadIndx = i;
+    }
+  }
+  //std::cout << jetPtCorr[leadIndx] << " " << jetEta[leadIndx] << " " << jetPtCorr[subleadIndx] << " " << jetEta[subleadIndx] << " " << acos(cos(jetPhi[leadIndx]- jetPhi[subleadIndx])) << std::endl;
+    
+  //dijet cut is here!!!
+  if(jetPtCorr[leadIndx]<120 || jetPtCorr[subleadIndx]<50 || fabs(jetEta[leadIndx])>2 || fabs(jetEta[subleadIndx])>2 || acos(cos(jetPhi[leadIndx]- jetPhi[subleadIndx])) < 5*3.141592/6.0) continue;
+  
 //particle loop here
   for(int itrk=0;itrk<ftrk[ifile]->nParticle;itrk++){
    
@@ -173,10 +202,11 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
    for(int ipt=0;ipt<nstep_pt;ipt++){
     eff_pt=eff_pt*p_eff_pt[ipt]->GetBinContent(p_eff_pt[ipt]->GetXaxis()->FindBin(pt));    
    } 
-   
-   for(int ijet=0;ijet<fjet[ifile]->nref;ijet++){
-    if(fabs(fjet[ifile]->jteta[ijet])>2 || fjet[ifile]->jtpt[ijet]<50) continue;
-    float r_reco=sqrt(pow(eta-fjet[ifile]->jteta[ijet],2)+pow(acos(cos(phi-fjet[ifile]->jtphi[ijet])),2));
+  
+//taking only the top 10 corrected jets (or less if  there are less jets in event) 
+   for(int ijet=0;ijet<10;ijet++){
+    if(fabs(jetEta[ijet])>2 || jetPtCorr[ijet]<50) continue;
+    float r_reco=sqrt(pow(eta-jetEta[ijet],2)+pow(acos(cos(phi-jetPhi[ijet])),2));
     if(r_reco<rmin_reco)rmin_reco=r_reco;
    }
    

@@ -5,7 +5,7 @@ then
 fi
 
 now="trkeff_corr_$(date +"%Y_%m_%d__%H_%M_%S")"
-njobs=1
+njobs=29
 
 mkdir $now
 cp centrality_weights.root $now
