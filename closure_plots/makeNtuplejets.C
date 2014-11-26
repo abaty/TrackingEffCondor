@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 #include "TCanvas.h"
 #include "TError.h"
 #include "TPad.h"
@@ -21,6 +22,8 @@
 #include "TNtuple.h"
 #include "TLine.h"
 #include "../ntupler/trackTree.C"
+#include "../ntupler/pfCand.C"
+#include "../ntupler/fragmentation_JEC_correction/fragmenation_JEC/fragmentation_JEC.h"
 
 void makeNtuple(){
  TH1D::SetDefaultSumw2();
@@ -42,18 +45,20 @@ float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11
  infname[6] = "/HiForest_PYTHIA_HYDJET_pthat370_Track9_Jet30_matchEqR_merged_forest_0";
 
  //full sample would be 350000,150000
- const int nevents[7] = {0,0,120000,0,0,0,0};
- 
+ const int nevents[7] = {0,0,87500,37500,0,0,0};
+
+ pfCand * fpf[7]; 
  trackTree * ftrk[7];
  HiTree * fhi[7];
  t * fjet[7];
  TFile * evtSelFile[7];
  TTree * evtSel[7];
  int pcoll[7];
- for(int ifile=2; ifile<3; ifile++){
+ for(int ifile=2; ifile<4; ifile++){
    ftrk[ifile] = new trackTree(Form("%s/%s.root",directory.Data(),infname[ifile]));
    fhi[ifile] = new HiTree(Form("%s/%s.root",directory.Data(),infname[ifile]));
    fjet[ifile] = new t(Form("%s/%s.root",directory.Data(),infname[ifile]));
+   fpf[ifile] = new pfCand(Form("%s/%s.root",directory.Data(),infname[ifile]));
    evtSelFile[ifile] = new TFile(Form("%s/%s.root",directory.Data(),infname[ifile]),"read");
    evtSel[ifile] = (TTree*) evtSelFile[ifile]->Get("skimanalysis/HltTree");
    evtSel[ifile]->SetBranchAddress("pcollisionEventSelection", &pcoll[ifile]);
@@ -86,7 +91,7 @@ float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11
  TProfile *p_eff_pt[npt_eff]; 
  TProfile *p_eff_rmin[npt_eff]; 
  for(int ipt=0; ipt<npt_eff;ipt++){
-   f_eff[ipt]= new TFile(Form("../final_hists_Vs3Calo/eff_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_eff[ipt]),(int)(100*ptmax_eff[ipt]),(int)(0.5*cent_min[ipt]),(int)(0.5*cent_max[ipt])));
+   f_eff[ipt]= new TFile(Form("../final_hists_Vs3Calo_dijet_11_18_2014/eff_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_eff[ipt]),(int)(100*ptmax_eff[ipt]),(int)(0.5*cent_min[ipt]),(int)(0.5*cent_max[ipt])));
    p_eff_cent[ipt]=(TProfile*)f_eff[ipt]->Get("p_eff_cent");
    p_eff_pt[ipt]=(TProfile*)f_eff[ipt]->Get("p_eff_pt");
    p_eff_accept[ipt]=(TProfile2D*)f_eff[ipt]->Get("p_eff_acceptance");
@@ -99,15 +104,19 @@ float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11
  TProfile *p_fake_pt[npt_fake]; 
  TProfile *p_fake_rmin[npt_fake]; 
  for(int ipt=0; ipt<npt_fake;ipt++){
-   f_fake[ipt]= new TFile(Form("../final_hists_Vs3Calo/fake_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_fake[ipt]),(int)(100*ptmax_fake[ipt]),(int)(0.5*cent_min_fake[ipt]),(int)(0.5*cent_max_fake[ipt])));
+   f_fake[ipt]= new TFile(Form("../final_hists_Vs3Calo_dijet_11_18_2014/fake_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_fake[ipt]),(int)(100*ptmax_fake[ipt]),(int)(0.5*cent_min_fake[ipt]),(int)(0.5*cent_max_fake[ipt])));
    p_fake_cent[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_cent");
    p_fake_pt[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_pt");
    p_fake_accept[ipt]=(TProfile2D*)f_fake[ipt]->Get("p_fake_acceptance");
    p_fake_rmin[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_rmin");
  }
 
+  //initializing JEC Correction
+  fragmentation_JEC *FF_JEC=new fragmentation_JEC(3, true);
+  FF_JEC->set_correction();  
+
  //output file and tree
- TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple.root","recreate");
+ TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple_dijet.root","recreate");
  
  std::string particleVars="pt:matchedpt:eta:phi:rmin:trackselect:cent:eff:cent_weight:pthat_weight:weight:pt1:pt2:dphi:asym:eta1:eta2:phi1:phi2:r_lead:r_sublead:isLeadClosest:isSubleadClosest";
  TNtuple *nt_particle = new TNtuple("nt_particle","",particleVars.data());
@@ -117,8 +126,7 @@ float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11
 
 
  //loop over events
-
- for(int ifile=2; ifile<3; ifile++){
+ for(int ifile=2; ifile<4; ifile++){
  std::cout<<ifile<<std::endl;
  int nentries = ftrk[ifile]->GetEntriesFast();
 for(int jentry=0;jentry<nevents[ifile];jentry++){
@@ -127,6 +135,8 @@ for(int jentry=0;jentry<nevents[ifile];jentry++){
   ftrk[ifile]->GetEntry(jentry);
   fhi[ifile]->GetEntry(jentry);
   fjet[ifile]->GetEntry(jentry);
+  fpf[ifile]->GetEntry(jentry);  
+
   evtSel[ifile]->GetEntry(jentry);
 
   float cent=fhi[ifile]->hiBin;
@@ -148,6 +158,35 @@ for(int jentry=0;jentry<nevents[ifile];jentry++){
 
   cent_weight = centWeights->GetBinContent(centWeights->FindBin(cent));
   weight = pthat_weight*cent_weight;
+
+  
+  float jetPtCorr[10] = {0};
+  float jetEta[10] = {0};
+  float jetPhi[10] = {0};
+
+  for(int ijet=0;(ijet<fjet[ifile]->nref) && ijet<10 && fjet[ifile]->jtpt[ijet]>40;ijet++){
+    int npf=0;
+    for(int ipf=0;ipf<fpf[ifile]->nPFpart;ipf++){
+      if(FF_JEC->passes_PF_selection(fpf[ifile]->pfVsPt[ipf], fpf[ifile]->pfEta[ipf], fpf[ifile]->pfPhi[ipf], fpf[ifile]->pfId[ipf], fjet[ifile]->jteta[ijet], fjet[ifile]->jtphi[ijet])) npf++;
+    }
+    jetPtCorr[ijet]=FF_JEC->get_corrected_pt(fjet[ifile]->jtpt[ijet], npf);
+    jetEta[ijet] = fjet[ifile]->jteta[ijet];
+    jetPhi[ijet] = fjet[ifile]->jtphi[ijet];
+  }
+  int leadIndx = 0;
+  int subleadIndx = 0;
+  for(int i=0; i<10; i++){
+    if(jetPtCorr[leadIndx] < jetPtCorr[i]){
+      subleadIndx = leadIndx;
+      leadIndx = i;
+    }
+    else if (jetPtCorr[subleadIndx] < jetPtCorr[i]){
+      subleadIndx = i;
+    }
+  }
+
+  if(jetPtCorr[leadIndx]<120 || jetPtCorr[subleadIndx]<50 || fabs(jetEta[leadIndx])>2 || fabs(jetEta[subleadIndx])>2 || acos(cos(jetPhi[leadIndx]- jetPhi[subleadIndx])) < 5*3.141592/6.0) continue;  
+
 
   float pt1=-99;
   float phi1=-99;
@@ -179,7 +218,7 @@ for(int jentry=0;jentry<nevents[ifile];jentry++){
   float dphi=-99;
   float ptratio=-99;
   float asym = -1;
-
+/*
 std::vector<std::pair<float, std::pair<float,std::pair<float, std::pair<float,std::pair<float,std::pair<float,std::pair<float,std::pair<float,float> > > > > > > > > jets;
   int njet=0;
   for(int ijet=0;ijet<fjet[ifile]->nref;ijet++){
@@ -230,7 +269,7 @@ if(njet>1){
     }
    }
   }
-
+*/
 
   //loop over tracks
   for(int itrk=0;itrk<ftrk[ifile]->nParticle;itrk++){
@@ -244,24 +283,25 @@ if(njet>1){
    float phi=ftrk[ifile]->pPhi[itrk];
    float rmin=199;
  
-   for(int ijet=0;ijet<fjet[ifile]->nref;ijet++){
-     if(fabs(fjet[ifile]->jteta[ijet])>2 || fjet[ifile]->jtpt[ijet]<50) continue;
-     float r_reco=sqrt(pow(eta-fjet[ifile]->jteta[ijet],2)+pow(acos(cos(phi-fjet[ifile]->jtphi[ijet])),2));
+   for(int ijet=0;ijet<10;ijet++){
+     if(fabs(jetEta[ijet])>2 || jetPtCorr[ijet]<50) continue;
+     float r_reco=sqrt(pow(eta-jetEta[ijet],2)+pow(acos(cos(phi-jetPhi[ijet])),2));
      if(r_reco<rmin)rmin=r_reco;
     }
 
+
     float isLeadClosest = 0;
     float isSubleadClosest = 0;
-    float r_lead    = sqrt(pow(eta-eta1,2)+pow(acos(cos(phi-phi1)),2));
-    if(r_lead == rmin) isLeadClosest = 1;
-    float r_sublead = sqrt(pow(eta-eta2,2)+pow(acos(cos(phi-phi2)),2));
-    if(r_sublead == rmin) isSubleadClosest = 1;   
+    float r_lead = 0;
+    float r_sublead = 0;
+//    float r_lead    = sqrt(pow(eta-eta1,2)+pow(acos(cos(phi-phi1)),2));
+//    if(r_lead == rmin) isLeadClosest = 1;
+//    float r_sublead = sqrt(pow(eta-eta2,2)+pow(acos(cos(phi-phi2)),2));
+//    if(r_sublead == rmin) isSubleadClosest = 1;   
 
   //cut for high R_lead or R_sublead so I can make a large ntuple
   //  if(isLeadClosest == 0 && isSubleadClosest == 0) continue;
   //  if(rmin < 1.6) continue;
-    
-
 
    //get efficiency correction for the track
    float eff_accept=1;
@@ -302,19 +342,21 @@ if(njet>1){
    float rmin=199;
 
    //find rmin; 
-     for(int ijet=0;ijet<fjet[ifile]->nref;ijet++){
-     if(fabs(fjet[ifile]->jteta[ijet])>2 || fjet[ifile]->jtpt[ijet]<50) continue;
-     float r_reco=sqrt(pow(eta-fjet[ifile]->jteta[ijet],2)+pow(acos(cos(phi-fjet[ifile]->jtphi[ijet])),2));
+     for(int ijet=0;ijet<10;ijet++){
+     if(fabs(jetEta[ijet])>2 || jetPtCorr[ijet]<50) continue;
+     float r_reco=sqrt(pow(eta-jetEta[ijet],2)+pow(acos(cos(phi-jetPhi[ijet])),2));
      if(r_reco<rmin)rmin=r_reco;
     }
 
 
     float isLeadClosest = 0;
     float isSubleadClosest = 0;
-    float r_lead    = sqrt(pow(eta-eta1,2)+pow(acos(cos(phi-phi1)),2));
-    if(r_lead == rmin) isLeadClosest = 1;
-    float r_sublead = sqrt(pow(eta-eta2,2)+pow(acos(cos(phi-phi2)),2));
-    if(r_sublead == rmin) isSubleadClosest = 1;
+    float r_lead = 0;
+    float r_sublead = 0;
+    //float r_lead    = sqrt(pow(eta-eta1,2)+pow(acos(cos(phi-phi1)),2));
+    //if(r_lead == rmin) isLeadClosest = 1;
+    //float r_sublead = sqrt(pow(eta-eta2,2)+pow(acos(cos(phi-phi2)),2));
+    //if(r_sublead == rmin) isSubleadClosest = 1;
 
   //cut for high R_lead or R_sublead so I can make a large ntuple
   //    if(isLeadClosest == 0 && isSubleadClosest == 0) continue;

@@ -151,7 +151,7 @@ const float y2[10]= {0.95 ,0.5, 0.95 ,0.95,0.95,0.95,0.95,0.9,0.9,0.95};
  
 
 TH1D::SetDefaultSumw2();
-TFile * f= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/MC_Check.root");
+TFile * f= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple_dijet.root");
 TTree * nt_track = (TTree*)f->Get("nt_track");
 TTree * nt_particle = (TTree*)f->Get("nt_particle");
 
@@ -356,7 +356,7 @@ leg4->AddEntry(h_reco_fakecorr_effcorr,"reco corr","p");
 leg4->AddEntry((TObject*)0 ,"Leading jet p_{T}>120","");
 leg4->AddEntry((TObject*)0 ,"Subleading jet p_{T}>50","");
 leg4->AddEntry((TObject*)0 ,"Jet |#eta|<0.5","");
-//leg4->AddEntry((TObject*)0 ,"|d#phi|<5#pi/6","");
+leg4->AddEntry((TObject*)0 ,"|d#phi|>5#pi/6","");
 //leg4->AddEntry((TObject*)0, "rsublead = rmin","");
 //leg4->AddEntry((TObject*)0, "cent<30%","");
 
@@ -377,6 +377,6 @@ c4->cd(2);
 if(m==9) c4->cd(2)->SetLogx();
 drawClosure(l,h_genreco_fullcorr,2);
 
-c4->SaveAs(Form("closure_plots/MB_Check/%s_akPu3_MB_jetcut.png",var1[m]));
-c4->SaveAs(Form("closure_plots/MB_Check/%s_akPu3_MB_jetcut.pdf",var1[m]));
+c4->SaveAs(Form("closure_plots/dijet_corrections_FFJEC/%s_akVs3_dijetcut.png",var1[m]));
+c4->SaveAs(Form("closure_plots/dijet_corrections_FFJEC/%s_akVs3_dijetcut.pdf",var1[m]));
 }
