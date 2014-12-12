@@ -180,14 +180,14 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
   for(int itrk=0;itrk<ftrk[ifile]->nParticle;itrk++){
    
    float pt=ftrk[ifile]->pPt[itrk];
-   if(pt<bin_pt_min || pt>bin_pt_max) continue;
+   float mpt=ftrk[ifile]->mtrkPt[itrk];
+   if((pt<bin_pt_min || pt>=bin_pt_max) && (mpt<bin_pt_min || mpt>=bin_pt_max)) continue;
 
    float eta=ftrk[ifile]->pEta[itrk];
    if(fabs(eta)>2.4) continue;
 
    float trackselect=(ftrk[ifile]->mtrkQual[itrk] && fabs((ftrk[ifile]->mtrkDxy1[itrk]/ftrk[ifile]->mtrkDxyError1[itrk]))<3.0 && fabs((ftrk[ifile]->mtrkDz1[itrk]/ftrk[ifile]->mtrkDzError1[itrk]))<3 && (ftrk[ifile]->mtrkPtError[itrk]/ftrk[ifile]->mtrkPt[itrk])<0.1);
 
-   float mpt=ftrk[ifile]->mtrkPt[itrk];
    float phi=ftrk[ifile]->pPhi[itrk];
    
    float eff_accept=1;
@@ -200,7 +200,7 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
    }
   
    for(int ipt=0;ipt<nstep_pt;ipt++){
-    eff_pt=eff_pt*p_eff_pt[ipt]->GetBinContent(p_eff_pt[ipt]->GetXaxis()->FindBin(pt));    
+    eff_pt=eff_pt*p_eff_pt[ipt]->GetBinContent(p_eff_pt[ipt]->GetXaxis()->FindBin(mpt));    
    } 
   
 //taking only the top 10 corrected jets (or less if  there are less jets in event) 
