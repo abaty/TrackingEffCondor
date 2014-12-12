@@ -49,7 +49,7 @@ const int n_rmin_bins=36;
 double rmin_bins[n_rmin_bins+1] = {0,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.,2.2,2.4,2.6,2.8,3,100};
 
 //###############################################Efficiencies after Correction###########################################################################
-
+/*
 TH1D * p_cent_corr= new TH1D("p_cent_corr",";centrality bin;efficiency",100,0,200);
 TH1D * p_cent_corr_gen= new TH1D("p_cent_corr_gen",";centrality bin;efficiency",100,0,200);
 
@@ -100,8 +100,8 @@ p_cent_corr->Divide(p_cent_corr_gen);
 p_pt_corr->Divide(p_pt_corr_gen);
 p_rmin_corr->Divide(p_rmin_corr_gen);
 p_eta_phi_corr->Divide(p_eta_phi_corr_gen);
+*/
 
-/*
 ///////////////cent dependent///////////////////
 TProfile * p_cent_corr= new TProfile("p_cent_corr",";centrality bin;efficiency",100,0,200);
 nt->Draw("(1/eff)*(mpt>0 && trackselect):cent>>p_cent_corr",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max));
@@ -124,15 +124,15 @@ nt->Draw("(1/eff)*(mpt>0 && trackselect):eta:phi>>p_eta_phi_corr",Form("weight*(
 ////////////rmin dependent/////////////////////////
 TProfile * p_rmin_corr = new TProfile("p_rmin_corr",";r_{min};efficiency",n_rmin_bins,rmin_bins);
 nt->Draw("(1/eff)*(mpt>0 && trackselect):rmin_reco>>p_rmin_corr",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max));
-*/
 
+/*
 p_pt_corr->SetMaximum(1.1);
 p_pt_corr->SetMinimum(0.9);
 p_cent_corr->SetMaximum(1.1);
 p_cent_corr->SetMinimum(0.9);
 p_rmin_corr->SetMaximum(1.1);
 p_rmin_corr->SetMinimum(0.9);
-
+*/
 /////output file to be used in the ntupler in the next step/////
 TFile *outf = new TFile(Form("eff_corr_nstep_cent%d_accept%d_pt%d_rmin%d_pt%d_%d_cent%d_%d.root",nstep_cent,nstep_accept,nstep_pt,nstep_rmin,(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max),"recreate");
 
@@ -145,16 +145,16 @@ outf->Close();
 
 ////overall efficiency histograms///////////////////////////////
 TProfile * p_eff_cent = new TProfile("p_eff_cent",";centrality bin;efficiency",100,0,200);
-nt->Draw("eff_cent:cent>>p_eff_cent",Form("weight*(abs(eta)<2.4&& mpt>%.3f && mpt<%.3f)",bin_pt_min,bin_pt_max),"prof");
+nt->Draw("eff_cent:cent>>p_eff_cent",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max),"prof");
 
 TProfile * p_eff_pt = new TProfile("p_eff_pt",";p_{T} bin;efficiency",maxbin,x);
-nt->Draw("eff_pt:mpt>>p_eff_pt",Form("weight*(abs(eta)<2.4&& mpt>%.3f && mpt<%.3f)",bin_pt_min,bin_pt_max),"prof");
+nt->Draw("eff_pt:pt>>p_eff_pt",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max),"prof");
 
 TProfile2D * p_eff_acceptance = new TProfile2D("p_eff_acceptance",";#phi;#eta;efficiency",50,-TMath::Pi(),TMath::Pi(),50,-2.4,2.4);
-nt->Draw("eff_accept:eta:phi>>p_eff_acceptance",Form("weight*(abs(eta)<2.4&& mpt>%.3f && mpt<%.3f)",bin_pt_min,bin_pt_max),"prof");
+nt->Draw("eff_accept:eta:phi>>p_eff_acceptance",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max),"prof");
 
 TProfile * p_eff_rmin = new TProfile("p_eff_rmin",";#phi;#eta;efficiency",n_rmin_bins,rmin_bins);
-nt->Draw("eff_rmin:rmin_reco>>p_eff_rmin",Form("weight*(abs(eta)<2.4&& mpt>%.3f && mpt<%.3f)",bin_pt_min,bin_pt_max),"prof");
+nt->Draw("eff_rmin:rmin_reco>>p_eff_rmin",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max),"prof");
 
 TFile *f_efficiency;
  if(is_final){

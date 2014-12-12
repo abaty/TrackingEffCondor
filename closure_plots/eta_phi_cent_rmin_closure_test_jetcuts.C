@@ -151,7 +151,7 @@ const float y2[10]= {0.95 ,0.5, 0.95 ,0.95,0.95,0.95,0.95,0.9,0.9,0.95};
  
 
 TH1D::SetDefaultSumw2();
-TFile * f= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple_dijet.root");
+TFile * f= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple_dijet2.root");
 TTree * nt_track = (TTree*)f->Get("nt_track");
 TTree * nt_particle = (TTree*)f->Get("nt_particle");
 
@@ -232,15 +232,17 @@ if(onlyFull !=1){
   {
     h_gen_select = new  TH1D("h_gen_select",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
     h_gen_matched_select_corr = new TH1D("h_gen_matched_select_corr",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
+    nt_particle->Draw(Form("%s>>h_gen_select",var[m]),"weight"*("trackselect" && ptCut));
+    nt_particle->Draw(Form("%s>>h_gen_matched_select_corr",var[m]),"(1/eff)*weight"*("trackselect" && ptCut));
+
   }
   else 
   {
     h_gen_select = new  TH1D("h_gen_select",Form(";%s;N_{evt}",label[m]),ny,x);
     h_gen_matched_select_corr = new TH1D("h_gen_matched_select_corr",Form(";%s;N_{evt}",label[m]),ny,x);
+    nt_particle->Draw(Form("matched%s>>h_gen_select",var[m]),"weight"*("trackselect" && ptCut));
+    nt_particle->Draw(Form("matched%s>>h_gen_matched_select_corr",var[m]),"(1/eff)*weight"*("trackselect" && ptCut));
   }
-
-  nt_particle->Draw(Form("%s>>h_gen_select",var[m]),"weight"*("trackselect" && ptCut));
-  nt_particle->Draw(Form("%s>>h_gen_matched_select_corr",var[m]),"(1/eff)*weight"*("trackselect" && ptCut));
 
   h_gen_select->SetMarkerColor(1);
   h_gen_matched_select_corr->SetMarkerColor(kRed);

@@ -181,7 +181,7 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
    
    float pt=ftrk[ifile]->pPt[itrk];
    float mpt=ftrk[ifile]->mtrkPt[itrk];
-   if((pt<bin_pt_min || pt>=bin_pt_max) && (mpt<bin_pt_min || mpt>=bin_pt_max)) continue;
+   if(pt<bin_pt_min || pt>=bin_pt_max) continue;
 
    float eta=ftrk[ifile]->pEta[itrk];
    if(fabs(eta)>2.4) continue;
@@ -200,7 +200,7 @@ void track_ntupler_cent(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int n
    }
   
    for(int ipt=0;ipt<nstep_pt;ipt++){
-    eff_pt=eff_pt*p_eff_pt[ipt]->GetBinContent(p_eff_pt[ipt]->GetXaxis()->FindBin(mpt));    
+    eff_pt=eff_pt*p_eff_pt[ipt]->GetBinContent(p_eff_pt[ipt]->GetXaxis()->FindBin(pt));    
    } 
   
 //taking only the top 10 corrected jets (or less if  there are less jets in event) 
