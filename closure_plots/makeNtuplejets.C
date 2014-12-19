@@ -27,6 +27,7 @@
 
 void makeNtuple(){
  TH1D::SetDefaultSumw2();
+ TH2D::SetDefaultSumw2();
 
 //weightings for samples produced on 09_21_2014
 float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11753e-05};
@@ -124,6 +125,21 @@ float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11
  std::string trackVars="pt:eta:phi:rmin:trackselect:trackstatus:cent:eff:trkfake:fake:cent_weight:pthat_weight:weight:pt1:pt2:dphi:asym:eta1:eta2:phi1:phi2:r_lead:r_sublead:isLeadClosest:isSubleadClosest";
  TNtuple *nt_track = new TNtuple("nt_track","",trackVars.data());
 
+
+//for resolution correction
+ double bin_pt_min=0.4;
+ double bin_pt_max=300;
+ const int ny=50;
+ double x[ny+1];
+ double inix=log(bin_pt_min)/log(10);
+ double delta=(log(bin_pt_max)-log(bin_pt_min))/(50*log(10));
+ for(int ix=0; ix<ny+1;ix++){
+  x[ix]=pow(10,inix);
+  inix+=delta;
+ }
+
+ TH2D * resoCorr = new TH2D("resoCorr","resoCorr",50,-2.4,2.4,ny,x);
+ TH2D * resoEntries = new TH2D("resoEntries","resoEntries",50,-2.4,2.4,ny,x);
 
  //loop over events
  for(int ifile=2; ifile<4; ifile++){
@@ -277,7 +293,7 @@ if(njet>1){
    float trackselect=(ftrk[ifile]->mtrkQual[itrk] && fabs(ftrk[ifile]->mtrkDxy1[itrk]/ftrk[ifile]->mtrkDxyError1[itrk])<3.0 && fabs(ftrk[ifile]->mtrkDz1[itrk]/ftrk[ifile]->mtrkDzError1[itrk])<3 && (ftrk[ifile]->mtrkPtError[itrk]/ftrk[ifile]->mtrkPt[itrk])<0.1);
    float eta=ftrk[ifile]->pEta[itrk];
 
-   if(fabs(eta)>2.4) continue; //acceptance of the tracker
+   if(TMath::Abs(eta)>2.4) continue; //acceptance of the tracker
    float pt=ftrk[ifile]->pPt[itrk];
    float mpt=ftrk[ifile]->mtrkPt[itrk];
    float phi=ftrk[ifile]->pPhi[itrk];
@@ -315,8 +331,13 @@ if(njet>1){
       eff_cent=p_eff_cent[ipt]->GetBinContent(p_eff_cent[ipt]->FindBin(cent));
       eff_accept=p_eff_accept[ipt]->GetBinContent(p_eff_accept[ipt]->GetXaxis()->FindBin(phi),p_eff_accept[ipt]->GetYaxis()->FindBin(eta));
       if(rmin<=100) eff_rmin=p_eff_rmin[ipt]->GetBinContent(p_eff_rmin[ipt]->FindBin(rmin));
-     }     
-   } 
+     }        
+   }
+   if(trackselect==1)
+    {
+      resoCorr->Fill(eta,mpt,pt/mpt);
+      resoEntries->Fill(eta,mpt);
+    }
 
    float eff=eff_accept*eff_cent*eff_pt*eff_rmin;
    
@@ -409,6 +430,9 @@ if(njet>1){
  }
 }
  
+resoCorr->Divide(resoEntries);
+resoCorr->Write();
+
   //nt_track->Write();
  // nt_particle->Write();
     outf->Write();

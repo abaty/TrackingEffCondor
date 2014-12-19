@@ -201,15 +201,16 @@ l->SetLineColor(1);
 //TCut jetCut = "isSubleadClosest && pt2>50 && pt1>120 && TMath::Abs(eta1)<0.5 && TMath::Abs(eta2)<0.5";
 //TCut jetCut = "pt2>50 && pt1>120 && TMath::Abs(eta1)<0.5 && TMath::Abs(eta2)<0.5 && TMath::Abs(dphi)<5*TMath::Pi()/6.0";
 //TCut jetCut = "pt2>50 && pt1>120 && TMath::Abs(eta1)<0.5 && TMath::Abs(eta2)<0.5";
-TCut jetCut = "pt>0.5";
+//TCut jetCut = "pt>0.4";
 TCut ptCut  = "pt>0.5";
+TCut mptCut = "matchedpt>0.5";
 
 //eff correction
 TH1D * h_gen;
 if(m!=9) h_gen = new  TH1D("h_gen",Form(";%s;Arbitrary Units",label[m]),bins[m],lowerBin[m],higherBin[m]);
 else     h_gen = new  TH1D("h_gen",Form(";%s;Arbitrary Units",label[m]),ny,x);
 
-nt_particle->Draw(Form("%s>>h_gen",var[m]),"weight"*(jetCut && ptCut),"");
+nt_particle->Draw(Form("%s>>h_gen",var[m]),"weight"*(ptCut),"");
 h_gen->SetMarkerColor(1);
 h_gen->SetMarkerStyle(25);
 h_gen->SetLineWidth(1);
@@ -232,16 +233,18 @@ if(onlyFull !=1){
   {
     h_gen_select = new  TH1D("h_gen_select",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
     h_gen_matched_select_corr = new TH1D("h_gen_matched_select_corr",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
-    nt_particle->Draw(Form("%s>>h_gen_select",var[m]),"weight"*("trackselect" && ptCut));
-    nt_particle->Draw(Form("%s>>h_gen_matched_select_corr",var[m]),"(1/eff)*weight"*("trackselect" && ptCut));
+    
+   //with respect to reco tracks here    
+    nt_track->Draw(Form("%s>>h_gen_select",var[m]),"weight"*("trackselect && !trkfake" && ptCut));
+    nt_track->Draw(Form("%s>>h_gen_matched_select_corr",var[m]),"(1/eff)*weight"*("trackselect && !trkfake" && ptCut));
 
   }
   else 
   {
     h_gen_select = new  TH1D("h_gen_select",Form(";%s;N_{evt}",label[m]),ny,x);
     h_gen_matched_select_corr = new TH1D("h_gen_matched_select_corr",Form(";%s;N_{evt}",label[m]),ny,x);
-    nt_particle->Draw(Form("matched%s>>h_gen_select",var[m]),"weight"*("trackselect" && ptCut));
-    nt_particle->Draw(Form("matched%s>>h_gen_matched_select_corr",var[m]),"(1/eff)*weight"*("trackselect" && ptCut));
+    nt_track->Draw(Form("%s>>h_gen_select",var[m]),"weight"*("trackselect && !trkfake" && ptCut));
+    nt_track->Draw(Form("%s>>h_gen_matched_select_corr",var[m]),"(1/eff)*weight"*("trackselect && !trkfake" && ptCut));
   }
 
   h_gen_select->SetMarkerColor(1);
@@ -288,7 +291,7 @@ TH1D * h_reco;
 if(m!=9) h_reco = new  TH1D("h_reco",Form(";%s;Arbitrary",label[m]),bins[m],lowerBin[m],higherBin[m]);
 else     h_reco = new  TH1D("h_reco",Form(";%s;Arbitrary",label[m]),ny,x);
 
-nt_track->Draw(Form("%s>>h_reco",var[m]),"weight"*("trackselect" && ptCut && jetCut),"");
+nt_track->Draw(Form("%s>>h_reco",var[m]),"weight"*("trackselect" && ptCut),"");
 
 legFormat(leg3);
 leg3->AddEntry(h_reco,"reco","p");
@@ -359,7 +362,7 @@ if(onlyFull != 1){
 TH1D * h_reco_fakecorr_effcorr;
 if(m!=9) h_reco_fakecorr_effcorr = new TH1D("h_reco_fakecorr_effcorr",Form(";%s;Arbitrary Units",label[m]),bins[m],lowerBin[m],higherBin[m]);
 else     h_reco_fakecorr_effcorr = new TH1D("h_reco_fakecorr_effcorr",Form(";%s;Arbitrary Units",label[m]),ny,x);
-nt_track->Draw(Form("%s>>h_reco_fakecorr_effcorr",var[m]),"((1-fake)/eff)*weight"*("trackselect" && ptCut && jetCut),""); 
+nt_track->Draw(Form("%s>>h_reco_fakecorr_effcorr",var[m]),"((1-fake)/eff)*weight"*("trackselect" && ptCut),""); 
 
 h_reco_fakecorr_effcorr->SetMarkerColor(kRed);
 h_reco_fakecorr_effcorr->SetLineColor(kRed);
