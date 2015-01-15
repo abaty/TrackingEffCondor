@@ -45,7 +45,7 @@ int main(int argc, char *argv[]){
     return 1;
   }
   int argument = std::atoi(argv[1]);
-  //if(argument==0) argument=18;
+  //if(argument==0) argument=27;
   //else if(argument==1) argument=26;
   //else if(argument==2) argument=27;
 

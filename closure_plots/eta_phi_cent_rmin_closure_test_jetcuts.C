@@ -141,9 +141,9 @@ if(m<0 || m>9){
 const char* var[10] = {"0.5*(cent)","rmin","eta","phi","asym","pt1","pt2","r_lead","r_sublead","pt"};
 const char* var1[10] = {"cent","rmin","eta","phi","asym","pt1","pt2","r_lead","r_sublead","pt"};
 const char* label[10] = {"cent(%)","r_{min}","#eta","#phi","A_{J}","p_{T,leading}","p_{T,subleading}","r_{leading}","r_{subleading}","p_{t}"};
-const int bins[10] = {50,50,50,50,25,25,25,50,50,50};
+const int bins[10] = {50,40,40,16,4,25,25,20,20,50};
 const float lowerBin[10] = {0,0,-2.4,-TMath::Pi(),0,0,0,0,0,0};
-const float higherBin[10] = {100,5,2.4,TMath::Pi(),1,500,300,5,5,300};
+const float higherBin[10] = {100,5,2.4,TMath::Pi(),0.44,300,300,5,5,300};
 const float x1[10]= {0.55  ,0.3, 0.5 ,0.55,0.55,0.55,0.55,0.1,0.1,0.6};
 const float y1[10]= {0.65 ,0.1, 0.65 ,0.65,0.65,0.65,0.65,0.5,0.5,0.5};
 const float x2[10]= {0.95 ,0.8, 0.9 ,0.95,0.95,0.95,0.95,0.5,0.5,0.95};
@@ -151,7 +151,7 @@ const float y2[10]= {0.95 ,0.5, 0.95 ,0.95,0.95,0.95,0.95,0.9,0.9,0.95};
  
 
 TH1D::SetDefaultSumw2();
-TFile * f= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple_dijet2.root");
+TFile * f= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple_dijet3.root");
 TTree * nt_track = (TTree*)f->Get("nt_track");
 TTree * nt_particle = (TTree*)f->Get("nt_particle");
 
@@ -163,10 +163,10 @@ leg->SetFillStyle(0);
 double bin_pt_min=0.5;
 double bin_pt_max=300;
 
-const int ny=50;
+const int ny=25;
 double x[ny+1];
 double inix=log(bin_pt_min)/log(10);
-double delta=(log(bin_pt_max)-log(bin_pt_min))/(50*log(10));
+double delta=(log(bin_pt_max)-log(bin_pt_min))/(25*log(10));
 for(int ix=0; ix<ny+1;ix++){
  x[ix]=pow(10,inix); 
  inix+=delta;
@@ -202,7 +202,7 @@ l->SetLineColor(1);
 //TCut jetCut = "pt2>50 && pt1>120 && TMath::Abs(eta1)<0.5 && TMath::Abs(eta2)<0.5 && TMath::Abs(dphi)<5*TMath::Pi()/6.0";
 //TCut jetCut = "pt2>50 && pt1>120 && TMath::Abs(eta1)<0.5 && TMath::Abs(eta2)<0.5";
 //TCut jetCut = "pt>0.4";
-TCut ptCut  = "pt>0.5";
+TCut ptCut  = "pt>3";
 TCut mptCut = "matchedpt>0.5";
 
 //eff correction
@@ -235,16 +235,18 @@ if(onlyFull !=1){
     h_gen_matched_select_corr = new TH1D("h_gen_matched_select_corr",Form(";%s;N_{evt}",label[m]),bins[m],lowerBin[m],higherBin[m]);
     
    //with respect to reco tracks here    
-    nt_track->Draw(Form("%s>>h_gen_select",var[m]),"weight"*("trackselect && !trkfake" && ptCut));
-    nt_track->Draw(Form("%s>>h_gen_matched_select_corr",var[m]),"(1/eff)*weight"*("trackselect && !trkfake" && ptCut));
+//    nt_track->Draw(Form("%s>>h_gen_select",var[m]),"weight"*("trackselect && !trkfake" && ptCut));
+//    nt_track->Draw(Form("%s>>h_gen_matched_select_corr",var[m]),"(1/eff)*weight"*("trackselect && !trkfake" && ptCut));
 
+      nt_particle->Draw(Form("%s>>h_gen_select",var[m]),"weight"*("trackselect" && ptCut));
+      nt_particle->Draw(Form("%s>>h_gen_matched_select_corr",var[m]),"(weight/eff)"*("trackselect" && ptCut));
   }
   else 
   {
     h_gen_select = new  TH1D("h_gen_select",Form(";%s;N_{evt}",label[m]),ny,x);
     h_gen_matched_select_corr = new TH1D("h_gen_matched_select_corr",Form(";%s;N_{evt}",label[m]),ny,x);
     nt_track->Draw(Form("%s>>h_gen_select",var[m]),"weight"*("trackselect && !trkfake" && ptCut));
-    nt_track->Draw(Form("%s>>h_gen_matched_select_corr",var[m]),"(1/eff)*weight"*("trackselect && !trkfake" && ptCut));
+    nt_track->Draw(Form("%s>>h_gen_matched_select_corr",var[m]),"(weight/eff)"*("trackselect && !trkfake" && ptCut));
   }
 
   h_gen_select->SetMarkerColor(1);
@@ -280,8 +282,10 @@ if(onlyFull !=1){
 
   drawClosure(l,hgen_corr_rat,0);
 
-  c2->SaveAs(Form("closure_plots/dijet_corrections_FFJEC/%s_akVs3_dijetcut_eff.png",var1[m]));
-  c2->SaveAs(Form("closure_plots/dijet_corrections_FFJEC/%s_akVs3_dijetcut_eff.png",var1[m]));
+  
+
+  c2->SaveAs(Form("closure_plots/dijet_corrections_FFJEC/%s_akVs3_dijetcut_eff2.png",var1[m]));
+  c2->SaveAs(Form("closure_plots/dijet_corrections_FFJEC/%s_akVs3_dijetcut_eff2.pdf",var1[m]));
 }
 
 //****************************************************************************
@@ -292,14 +296,13 @@ if(m!=9) h_reco = new  TH1D("h_reco",Form(";%s;Arbitrary",label[m]),bins[m],lowe
 else     h_reco = new  TH1D("h_reco",Form(";%s;Arbitrary",label[m]),ny,x);
 
 nt_track->Draw(Form("%s>>h_reco",var[m]),"weight"*("trackselect" && ptCut),"");
-
 legFormat(leg3);
 leg3->AddEntry(h_reco,"reco","p");
 
 TCanvas * c3 = new TCanvas("c3","",600,600);
 makeMultiPanelCanvas(c3,1,2,0.0,0.0,0.15,0.15,0.02);
 c3->cd(1);
-if(m<2 || m==9) c3->cd(1)->SetLogy();
+if(m<2 || m==9);// c3->cd(1)->SetLogy();
 if(m==9) c3->cd(1)->SetLogx();
 else{
   h_reco->SetMaximum(1.6*h_reco->GetBinContent(h_reco->GetMaximumBin()));
@@ -322,26 +325,18 @@ if(onlyFull != 1){
     h_reco_fakecorr = new TH1D("h_reco_fakecorr",Form(";%s;N_{evt}",label[m]),ny,x);
   }
 
-
   nt_track->Draw(Form("%s>>h_reco_matched",var[m]),"weight"*("trackselect && !trkfake" && ptCut)); 
   nt_track->Draw(Form("%s>>h_reco_fakecorr",var[m]),"(1-fake)*weight"*("trackselect" && ptCut)); 
 
   leg3->AddEntry(h_reco_matched,"matched reco","p");
   leg3->AddEntry(h_reco_fakecorr,"fake corrected reco","p");
 
-
   h_reco_matched->SetMarkerColor(1);
   h_reco_matched->SetMarkerStyle(25);
   h_reco_fakecorr->SetMarkerColor(kRed);
   h_reco_fakecorr->SetLineColor(kRed);
 
-  //legFormat(leg3);
-  //leg3->AddEntry(h_reco,"reco","p");
-  //leg3->AddEntry(h_reco_matched,"matched reco","p");
-  //leg3->AddEntry(h_reco_fakecorr,"fake corrected reco","p");
-
   h_reco->DrawCopy();
-
   h_reco_matched->DrawCopy("same");
   h_reco_fakecorr->DrawCopy("same");
   leg3->Draw("same");
@@ -352,8 +347,8 @@ if(onlyFull != 1){
   if(m==9) c3->cd(2)->SetLogx();
   drawClosure(l,hreco_fakecorr_rat,1);
 
-  c3->SaveAs(Form("closure_plots/dijet_corrections_FFJEC/%s_akVs3_dijetcut_fake.png",var1[m]));
-  c3->SaveAs(Form("closure_plots/dijet_corrections_FFJEC/%s_akVs3_dijetcut_fake.png",var1[m]));
+  c3->SaveAs(Form("closure_plots/dijet_corrections_FFJEC/%s_akVs3_dijetcut_fake2.png",var1[m]));
+  c3->SaveAs(Form("closure_plots/dijet_corrections_FFJEC/%s_akVs3_dijetcut_fake2.pdf",var1[m]));
 }
 
 
@@ -388,7 +383,7 @@ leg4->AddEntry((TObject*)0 ,"Leading jet p_{T}>120","");
 leg4->AddEntry((TObject*)0 ,"Subleading jet p_{T}>50","");
 leg4->AddEntry((TObject*)0 ,"Jet |#eta|<2","");
 leg4->AddEntry((TObject*)0 ,"|d#phi|>5#pi/6","");
-//leg4->AddEntry((TObject*)0, "rsublead = rmin","");
+leg4->AddEntry((TObject*)0, "p_{t}>3 GeV/c","");
 //leg4->AddEntry((TObject*)0, "cent<30%","");
 
 TCanvas *c4 = new TCanvas("c4","",600,600);
@@ -408,6 +403,6 @@ c4->cd(2);
 if(m==9) c4->cd(2)->SetLogx();
 drawClosure(l,h_genreco_fullcorr,2);
 
-c4->SaveAs(Form("closure_plots/dijet_corrections_FFJEC/%s_akVs3_dijetcut.png",var1[m]));
-c4->SaveAs(Form("closure_plots/dijet_corrections_FFJEC/%s_akVs3_dijetcut.pdf",var1[m]));
+c4->SaveAs(Form("closure_plots/dijet_corrections_FFJEC/%s_akVs3_dijetcut3.png",var1[m]));
+c4->SaveAs(Form("closure_plots/dijet_corrections_FFJEC/%s_akVs3_dijetcut3.pdf",var1[m]));
 }

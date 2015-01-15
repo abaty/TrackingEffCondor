@@ -68,12 +68,12 @@ p_pt_corr->SetMinimum(0.9);
 TProfile2D * p_eta_phi_corr;
 if(bin_pt_min >= 3)
   {
-    p_eta_phi_corr = new TProfile2D("p_eta_phi_corr",";#phi;#eta;",20,-TMath::Pi(),TMath::Pi(),20,-2.4,2.4);
+    p_eta_phi_corr = new TProfile2D("p_eta_phi_corr",";#phi;#eta;",10,-TMath::Pi(),TMath::Pi(),10,-2.4,2.4);
     nt->Draw("(trkfake-fake):eta:phi>>p_eta_phi_corr",Form("weight*(trackselect && trkfake<2 && abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max));
   }
 else
   {
-    p_eta_phi_corr = new TProfile2D("p_eta_phi_corr",";#phi;#eta;",50,-TMath::Pi(),TMath::Pi(),50,-2.4,2.4);
+    p_eta_phi_corr = new TProfile2D("p_eta_phi_corr",";#phi;#eta;",16,-TMath::Pi(),TMath::Pi(),40,-2.4,2.4);
     nt->Draw("(trkfake-fake):eta:phi>>p_eta_phi_corr",Form("weight*(trackselect && trkfake<2 && abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max));
   }
 
@@ -104,12 +104,12 @@ nt->Draw("fake_pt:pt>>p_fake_pt",Form("weight*(trackselect && trkfake<2 && abs(e
 TProfile2D * p_fake_acceptance;
 if(bin_pt_min >= 3)
   {
-    p_fake_acceptance = new TProfile2D("p_fake_acceptance",";#phi;#eta;efficiency",20,-TMath::Pi(),TMath::Pi(),20,-2.4,2.4);
+    p_fake_acceptance = new TProfile2D("p_fake_acceptance",";#phi;#eta;efficiency",10,-TMath::Pi(),TMath::Pi(),10,-2.4,2.4);
     nt->Draw("fake_accept:eta:phi>>p_fake_acceptance",Form("weight*(trackselect && trkfake<2 && abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max),"prof");
   }
 else
   {
-    p_fake_acceptance = new TProfile2D("p_fake_acceptance",";#phi;#eta;efficiency",50,-TMath::Pi(),TMath::Pi(),50,-2.4,2.4);
+    p_fake_acceptance = new TProfile2D("p_fake_acceptance",";#phi;#eta;efficiency",16,-TMath::Pi(),TMath::Pi(),40,-2.4,2.4);
     nt->Draw("fake_accept:eta:phi>>p_fake_acceptance",Form("weight*(trackselect && trkfake<2 && abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max),"prof");
   }
 

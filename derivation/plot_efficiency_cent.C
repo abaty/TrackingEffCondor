@@ -111,7 +111,7 @@ p_cent_corr->SetMinimum(0.9);
 
 ////////////pt dependent////////////////////////
 TProfile * p_pt_corr= new TProfile("p_pt_corr",";p_{T}(GeV/c);efficiency",maxbin,x);
-nt->Draw("(1/eff)*(mpt>0 && trackselect):mpt>>p_pt_corr",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max));
+nt->Draw("(1/eff)*(mpt>0 && trackselect):pt>>p_pt_corr",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max));
 
 p_pt_corr->SetMaximum(1.1);
 p_pt_corr->SetMinimum(0.9);
@@ -121,12 +121,12 @@ p_pt_corr->SetMinimum(0.9);
 TProfile2D * p_eta_phi_corr;
 if(bin_pt_min >= 3)
   {
-    p_eta_phi_corr= new TProfile2D("p_eta_phi_corr",";#phi;#eta;",20,-TMath::Pi(),TMath::Pi(),20,-2.4,2.4);
+    p_eta_phi_corr= new TProfile2D("p_eta_phi_corr",";#phi;#eta;",10,-TMath::Pi(),TMath::Pi(),10,-2.4,2.4);
     nt->Draw("(1/eff)*(mpt>0 && trackselect):eta:phi>>p_eta_phi_corr",Form("weight*( abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max));
   } 
 else
   {
-    p_eta_phi_corr= new TProfile2D("p_eta_phi_corr",";#phi;#eta;",50,-TMath::Pi(),TMath::Pi(),50,-2.4,2.4);
+    p_eta_phi_corr= new TProfile2D("p_eta_phi_corr",";#phi;#eta;",16,-TMath::Pi(),TMath::Pi(),40,-2.4,2.4);
     nt->Draw("(1/eff)*(mpt>0 && trackselect):eta:phi>>p_eta_phi_corr",Form("weight*( abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max));
   }
 
@@ -159,15 +159,15 @@ nt->Draw("eff_cent:cent>>p_eff_cent",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<
 TProfile * p_eff_pt = new TProfile("p_eff_pt",";p_{T} bin;efficiency",maxbin,x);
 nt->Draw("eff_pt:pt>>p_eff_pt",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max),"prof");
 
-TProfile2D * p_eff_acceptance
+TProfile2D * p_eff_acceptance;
 if(bin_pt_min >= 3)
   {
-    p_eff_aceptance = new TProfile2D("p_eff_acceptance",";#phi;#eta;efficiency",20,-TMath::Pi(),TMath::Pi(),20,-2.4,2.4);
+    p_eff_acceptance = new TProfile2D("p_eff_acceptance",";#phi;#eta;efficiency",10,-TMath::Pi(),TMath::Pi(),10,-2.4,2.4);
     nt->Draw("eff_accept:eta:phi>>p_eff_acceptance",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max),"prof");
   }
 else
   {
-    p_eff_aceptance = new TProfile2D("p_eff_acceptance",";#phi;#eta;efficiency",50,-TMath::Pi(),TMath::Pi(),50,-2.4,2.4);
+    p_eff_acceptance = new TProfile2D("p_eff_acceptance",";#phi;#eta;efficiency",16,-TMath::Pi(),TMath::Pi(),40,-2.4,2.4);
     nt->Draw("eff_accept:eta:phi>>p_eff_acceptance",Form("weight*(abs(eta)<2.4&& pt>%.3f && pt<%.3f)",bin_pt_min,bin_pt_max),"prof");
   }
 

@@ -23,7 +23,7 @@
 #include "TLine.h"
 #include "trackTree.C"
 #include "pfCand.C"
-#include "fragmentation_JEC_correction/fragmenation_JEC/fragmentation_JEC.h"
+#include "fragmentation_JEC_correction/fragmentation_JEC/fragmentation_JEC.h"
 
 
 void track_ntupler_cent_fake(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,int nstep_rmin=1,double bin_pt_min=8,double bin_pt_max=100,double bin_cent_min=0,double bin_cent_max=10,int *nevents=0){
@@ -93,7 +93,7 @@ void track_ntupler_cent_fake(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,
  centWeights = (TH1F*)centWeightsFile->Get("centrality_weight");
 
 //initializing JEC Correction
- fragmentation_JEC *FF_JEC=new fragmentation_JEC(3, true);
+ fragmentation_JEC *FF_JEC=new fragmentation_JEC(3, true, false, true, 2);
  FF_JEC->set_correction();
 
  TFile *outf= new TFile(Form("track_ntuple_cent_%d_accept_%d_pt_%d_rmin_%d_ptmin%d_ptmax%d_centmin%d_centmax%d.root",nstep_cent,nstep_accept,nstep_pt,nstep_rmin,(int)bin_pt_min,(int)bin_pt_max,(int)bin_cent_min,(int)bin_cent_max),"recreate");
@@ -151,7 +151,8 @@ void track_ntupler_cent_fake(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,
     for(int ipf=0;ipf<fpf[ifile]->nPFpart;ipf++){
       if(FF_JEC->passes_PF_selection(fpf[ifile]->pfVsPt[ipf], fpf[ifile]->pfEta[ipf], fpf[ifile]->pfPhi[ipf], fpf[ifile]->pfId[ipf], fjet[ifile]->jteta[ijet], fjet[ifile]->jtphi[ijet])) npf++;
     }
-    jetPtCorr[ijet]=FF_JEC->get_corrected_pt(fjet[ifile]->jtpt[ijet], npf);
+    jetPtCorr[ijet]=FF_JEC->get_residual_corrected_pt(FF_JEC->get_corrected_pt(fjet[ifile]->jtpt[ijet], npf,cent),cent);    
+
     jetEta[ijet] = fjet[ifile]->jteta[ijet];
     jetPhi[ijet] = fjet[ifile]->jtphi[ijet];
   }
@@ -169,7 +170,7 @@ void track_ntupler_cent_fake(int nstep_cent=2,int nstep_accept=1,int nstep_pt=1,
   //std::cout << jetPtCorr[leadIndx] << " " << jetEta[leadIndx] << " " << jetPtCorr[subleadIndx] << " " << jetEta[subleadIndx] << " " << acos(cos(jetPhi[leadIndx]- jetPhi[subleadIndx])) << std::endl;
   
   //dijet cut is here!!!
-  if(jetPtCorr[leadIndx]<120 || jetPtCorr[subleadIndx]<50 || fabs(jetEta[leadIndx])>2 || fabs(jetEta[subleadIndx])>2 || acos(cos(jetPhi[leadIndx]- jetPhi[subleadIndx])) < 5*3.141592/6.0) continue;
+  if(jetPtCorr[leadIndx]<120 || jetPtCorr[subleadIndx]<50 || fabs(jetEta[leadIndx])>2 || fabs(jetEta[subleadIndx])>2 || acos(cos(jetPhi[leadIndx]- jetPhi[subleadIndx])) < 3*3.141592/6.0) continue;
       
 
   for(int itrk=0;itrk<ftrk[ifile]->nTrk;itrk++){ 

@@ -21,9 +21,10 @@
 #include "TCut.h"
 #include "TNtuple.h"
 #include "TLine.h"
+#include "TF1.h"
 #include "../ntupler/trackTree.C"
 #include "../ntupler/pfCand.C"
-#include "../ntupler/fragmentation_JEC_correction/fragmenation_JEC/fragmentation_JEC.h"
+#include "../ntupler/fragmentation_JEC_correction/fragmentation_JEC/fragmentation_JEC.h"
 
 void makeNtuple(){
  TH1D::SetDefaultSumw2();
@@ -46,7 +47,7 @@ float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11
  infname[6] = "/HiForest_PYTHIA_HYDJET_pthat370_Track9_Jet30_matchEqR_merged_forest_0";
 
  //full sample would be 350000,150000
- const int nevents[7] = {0,0,87500,37500,0,0,0};
+ const int nevents[7] = {0,0,350000,150000,0,0,0};
 
  pfCand * fpf[7]; 
  trackTree * ftrk[7];
@@ -92,7 +93,7 @@ float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11
  TProfile *p_eff_pt[npt_eff]; 
  TProfile *p_eff_rmin[npt_eff]; 
  for(int ipt=0; ipt<npt_eff;ipt++){
-   f_eff[ipt]= new TFile(Form("../final_hists_Vs3Calo_dijet_11_18_2014/eff_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_eff[ipt]),(int)(100*ptmax_eff[ipt]),(int)(0.5*cent_min[ipt]),(int)(0.5*cent_max[ipt])));
+   f_eff[ipt]= new TFile(Form("../final_hists_Vs3Calo_dijet_12_19_2014/eff_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_eff[ipt]),(int)(100*ptmax_eff[ipt]),(int)(0.5*cent_min[ipt]),(int)(0.5*cent_max[ipt])));
    p_eff_cent[ipt]=(TProfile*)f_eff[ipt]->Get("p_eff_cent");
    p_eff_pt[ipt]=(TProfile*)f_eff[ipt]->Get("p_eff_pt");
    p_eff_accept[ipt]=(TProfile2D*)f_eff[ipt]->Get("p_eff_acceptance");
@@ -105,7 +106,7 @@ float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11
  TProfile *p_fake_pt[npt_fake]; 
  TProfile *p_fake_rmin[npt_fake]; 
  for(int ipt=0; ipt<npt_fake;ipt++){
-   f_fake[ipt]= new TFile(Form("../final_hists_Vs3Calo_dijet_11_18_2014/fake_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_fake[ipt]),(int)(100*ptmax_fake[ipt]),(int)(0.5*cent_min_fake[ipt]),(int)(0.5*cent_max_fake[ipt])));
+   f_fake[ipt]= new TFile(Form("../final_hists_Vs3Calo_dijet_12_19_2014/fake_pt%d_%d_cent%d_%d.root",(int)(100*ptmin_fake[ipt]),(int)(100*ptmax_fake[ipt]),(int)(0.5*cent_min_fake[ipt]),(int)(0.5*cent_max_fake[ipt])));
    p_fake_cent[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_cent");
    p_fake_pt[ipt]=(TProfile*)f_fake[ipt]->Get("p_fake_pt");
    p_fake_accept[ipt]=(TProfile2D*)f_fake[ipt]->Get("p_fake_acceptance");
@@ -113,11 +114,11 @@ float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11
  }
 
   //initializing JEC Correction
-  fragmentation_JEC *FF_JEC=new fragmentation_JEC(3, true);
+  fragmentation_JEC *FF_JEC=new fragmentation_JEC(3, true, false, true, 2);
   FF_JEC->set_correction();  
 
  //output file and tree
- TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple_dijet2.root","recreate");
+ TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple_dijet_jetpt100.root","recreate");
  
  std::string particleVars="pt:matchedpt:eta:phi:rmin:trackselect:cent:eff:cent_weight:pthat_weight:weight:pt1:pt2:dphi:asym:eta1:eta2:phi1:phi2:r_lead:r_sublead:isLeadClosest:isSubleadClosest";
  TNtuple *nt_particle = new TNtuple("nt_particle","",particleVars.data());
@@ -185,7 +186,8 @@ for(int jentry=0;jentry<nevents[ifile];jentry++){
     for(int ipf=0;ipf<fpf[ifile]->nPFpart;ipf++){
       if(FF_JEC->passes_PF_selection(fpf[ifile]->pfVsPt[ipf], fpf[ifile]->pfEta[ipf], fpf[ifile]->pfPhi[ipf], fpf[ifile]->pfId[ipf], fjet[ifile]->jteta[ijet], fjet[ifile]->jtphi[ijet])) npf++;
     }
-    jetPtCorr[ijet]=FF_JEC->get_corrected_pt(fjet[ifile]->jtpt[ijet], npf);
+    jetPtCorr[ijet]=FF_JEC->get_residual_corrected_pt(FF_JEC->get_corrected_pt(fjet[ifile]->jtpt[ijet], npf,cent),cent);
+
     jetEta[ijet] = fjet[ifile]->jteta[ijet];
     jetPhi[ijet] = fjet[ifile]->jtphi[ijet];
   }
@@ -201,8 +203,9 @@ for(int jentry=0;jentry<nevents[ifile];jentry++){
     }
   }
 
-  if(jetPtCorr[leadIndx]<120 || jetPtCorr[subleadIndx]<50 || fabs(jetEta[leadIndx])>2 || fabs(jetEta[subleadIndx])>2 || acos(cos(jetPhi[leadIndx]- jetPhi[subleadIndx])) < 5*3.141592/6.0) continue;  
-
+  //if(jetPtCorr[leadIndx]<120 || jetPtCorr[subleadIndx]<50 || fabs(jetEta[leadIndx])>2 || fabs(jetEta[subleadIndx])>2 || acos(cos(jetPhi[leadIndx]- jetPhi[subleadIndx])) < 5*3.141592/6.0) continue;  
+  if((jetPtCorr[leadIndx]<100 || jetPtCorr[leadIndx]>110) && (jetPtCorr[subleadIndx]<100 || jetPtCorr[subleadIndx]>110) || fabs(jetEta[leadIndx])>2 || fabs(jetEta[subleadIndx])>2 || acos(cos(jetPhi[leadIndx]- jetPhi[subleadIndx])) < 5*3.141592/6.0) continue;
+  float asym = (jetPtCorr[leadIndx]-jetPtCorr[subleadIndx])/(jetPtCorr[leadIndx]+jetPtCorr[subleadIndx]);
 
   float pt1=-99;
   float phi1=-99;
@@ -233,7 +236,6 @@ for(int jentry=0;jentry<nevents[ifile];jentry++){
   float trackMax3=-99;
   float dphi=-99;
   float ptratio=-99;
-  float asym = -1;
 /*
 std::vector<std::pair<float, std::pair<float,std::pair<float, std::pair<float,std::pair<float,std::pair<float,std::pair<float,std::pair<float,float> > > > > > > > > jets;
   int njet=0;
@@ -308,12 +310,12 @@ if(njet>1){
 
     float isLeadClosest = 0;
     float isSubleadClosest = 0;
-    float r_lead = 0;
-    float r_sublead = 0;
-//    float r_lead    = sqrt(pow(eta-eta1,2)+pow(acos(cos(phi-phi1)),2));
-//    if(r_lead == rmin) isLeadClosest = 1;
-//    float r_sublead = sqrt(pow(eta-eta2,2)+pow(acos(cos(phi-phi2)),2));
-//    if(r_sublead == rmin) isSubleadClosest = 1;   
+    float r_lead = -1;
+    float r_sublead = -1;
+    if((jetPtCorr[leadIndx]>100 && jetPtCorr[leadIndx]<110)) r_lead    = sqrt(pow(eta-jetEta[leadIndx],2)+pow(acos(cos(phi-jetPhi[leadIndx])),2));
+    if(r_lead == rmin) isLeadClosest = 1;
+    if((jetPtCorr[subleadIndx]>100 && jetPtCorr[subleadIndx]<110))r_sublead = sqrt(pow(eta-jetEta[subleadIndx],2)+pow(acos(cos(phi-jetPhi[subleadIndx])),2));
+    if(r_sublead == rmin) isSubleadClosest = 1;   
 
   //cut for high R_lead or R_sublead so I can make a large ntuple
   //  if(isLeadClosest == 0 && isSubleadClosest == 0) continue;
@@ -343,7 +345,7 @@ if(njet>1){
    
    //fill in the output tree
   
-   float entry[]={pt,mpt,eta,phi,rmin,trackselect,cent,eff,cent_weight,pthat_weight,weight,pt1,pt2,dphi,asym,eta1,eta2,phi1,phi2,r_lead,r_sublead,isLeadClosest,isSubleadClosest};
+   float entry[]={pt,mpt,eta,phi,rmin,trackselect,cent,eff,cent_weight,pthat_weight,weight,jetPtCorr[leadIndx],jetPtCorr[subleadIndx],dphi,asym,eta1,eta2,phi1,phi2,r_lead,r_sublead,isLeadClosest,isSubleadClosest};
 
    nt_particle->Fill(entry);
 
@@ -372,12 +374,12 @@ if(njet>1){
 
     float isLeadClosest = 0;
     float isSubleadClosest = 0;
-    float r_lead = 0;
-    float r_sublead = 0;
-    //float r_lead    = sqrt(pow(eta-eta1,2)+pow(acos(cos(phi-phi1)),2));
-    //if(r_lead == rmin) isLeadClosest = 1;
-    //float r_sublead = sqrt(pow(eta-eta2,2)+pow(acos(cos(phi-phi2)),2));
-    //if(r_sublead == rmin) isSubleadClosest = 1;
+    float r_lead = -1;
+    float r_sublead = -1;
+    if((jetPtCorr[leadIndx]>100 && jetPtCorr[leadIndx]<110)) r_lead = sqrt(pow(eta-jetEta[leadIndx],2)+pow(acos(cos(phi-jetPhi[leadIndx])),2));
+    if(r_lead == rmin) isLeadClosest = 1;
+    if((jetPtCorr[subleadIndx]>100 && jetPtCorr[subleadIndx]<110)) r_sublead = sqrt(pow(eta-jetEta[subleadIndx],2)+pow(acos(cos(phi-jetPhi[subleadIndx])),2));
+    if(r_sublead == rmin) isSubleadClosest = 1;
 
   //cut for high R_lead or R_sublead so I can make a large ntuple
   //    if(isLeadClosest == 0 && isSubleadClosest == 0) continue;
@@ -424,7 +426,7 @@ if(njet>1){
    //if(fake<0) fake=0;
 
    //fill in the output tree
-   float entry[]={pt,eta,phi,rmin,trackselect,trackstatus,cent,eff,trkfake,fake,cent_weight,pthat_weight,weight,pt1,pt2,dphi,asym,eta1,eta2,phi1,phi2,r_lead,r_sublead,isLeadClosest,isSubleadClosest};
+   float entry[]={pt,eta,phi,rmin,trackselect,trackstatus,cent,eff,trkfake,fake,cent_weight,pthat_weight,weight,jetPtCorr[leadIndx],jetPtCorr[subleadIndx],dphi,asym,eta1,eta2,phi1,phi2,r_lead,r_sublead,isLeadClosest,isSubleadClosest};
    nt_track->Fill(entry);
   }
  }
