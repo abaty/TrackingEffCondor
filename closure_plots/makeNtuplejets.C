@@ -32,7 +32,7 @@ void makeNtuple(){
 
 //weightings for samples produced on 09_21_2014
 float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11753e-05};
-  float vertexShift = 0.436781;
+float vertexShift = 0.436781;
 
  TString directory="/mnt/hadoop/cms/store/user/dgulhan/PYTHIA_HYDJET_Track9_Jet30_Pyquen_DiJet_TuneZ2_Unquenched_Hydjet1p8_2760GeV_merged/";
  
@@ -118,7 +118,7 @@ float pthatWeight[7] = {0,0,0.000281494,5.95379e-05,5.93536e-05,5.81032e-05,6.11
   FF_JEC->set_correction();  
 
  //output file and tree
- TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple_dijet_jetpt100.root","recreate");
+ TFile *outf= new TFile("/export/d00/scratch/abaty/trackingEff/closure_ntuples/Correction_Vs3Calo_ntuple_dijet4.root","recreate");
  
  std::string particleVars="pt:matchedpt:eta:phi:rmin:trackselect:cent:eff:cent_weight:pthat_weight:weight:pt1:pt2:dphi:asym:eta1:eta2:phi1:phi2:r_lead:r_sublead:isLeadClosest:isSubleadClosest";
  TNtuple *nt_particle = new TNtuple("nt_particle","",particleVars.data());
@@ -187,24 +187,24 @@ for(int jentry=0;jentry<nevents[ifile];jentry++){
       if(FF_JEC->passes_PF_selection(fpf[ifile]->pfVsPt[ipf], fpf[ifile]->pfEta[ipf], fpf[ifile]->pfPhi[ipf], fpf[ifile]->pfId[ipf], fjet[ifile]->jteta[ijet], fjet[ifile]->jtphi[ijet])) npf++;
     }
     jetPtCorr[ijet]=FF_JEC->get_residual_corrected_pt(FF_JEC->get_corrected_pt(fjet[ifile]->jtpt[ijet], npf,cent),cent);
-
+    //temporarily bypass FFJEC for now
+    //jetPtCorr[ijet] = fjet[ifile]->jtpt[ijet];
     jetEta[ijet] = fjet[ifile]->jteta[ijet];
     jetPhi[ijet] = fjet[ifile]->jtphi[ijet];
   }
   int leadIndx = 0;
-  int subleadIndx = 0;
+  int subleadIndx;
   for(int i=0; i<10; i++){
-    if(jetPtCorr[leadIndx] < jetPtCorr[i]){
-      subleadIndx = leadIndx;
-      leadIndx = i;
-    }
-    else if (jetPtCorr[subleadIndx] < jetPtCorr[i]){
-      subleadIndx = i;
-    }
+    if(jetPtCorr[leadIndx] < jetPtCorr[i])  leadIndx = i;
+  }
+  if(leadIndx == 0) subleadIndx = 1;
+  else subleadIndx = 0;
+  for(int i=0; i<10; i++){
+    if(jetPtCorr[subleadIndx] < jetPtCorr[i] && i != leadIndx)  subleadIndx = i;
   }
 
-  //if(jetPtCorr[leadIndx]<120 || jetPtCorr[subleadIndx]<50 || fabs(jetEta[leadIndx])>2 || fabs(jetEta[subleadIndx])>2 || acos(cos(jetPhi[leadIndx]- jetPhi[subleadIndx])) < 5*3.141592/6.0) continue;  
-  if((jetPtCorr[leadIndx]<100 || jetPtCorr[leadIndx]>110) && (jetPtCorr[subleadIndx]<100 || jetPtCorr[subleadIndx]>110) || fabs(jetEta[leadIndx])>2 || fabs(jetEta[subleadIndx])>2 || acos(cos(jetPhi[leadIndx]- jetPhi[subleadIndx])) < 5*3.141592/6.0) continue;
+  //if(jentry%100 == 0) std::cout << jetPtCorr[leadIndx]<< " " <<jetPtCorr[subleadIndx] <<" "<< jetEta[leadIndx] << " "<< jetEta[subleadIndx] <<" "<< jetPtCorr[0] <<" "<< jetPtCorr[1] <<std::endl;
+  if(jetPtCorr[leadIndx]<120 || jetPtCorr[subleadIndx]<50 || fabs(jetEta[leadIndx])>2 || fabs(jetEta[subleadIndx])>2 || acos(cos(jetPhi[leadIndx]- jetPhi[subleadIndx])) < 5*3.141592/6.0) continue; 
   float asym = (jetPtCorr[leadIndx]-jetPtCorr[subleadIndx])/(jetPtCorr[leadIndx]+jetPtCorr[subleadIndx]);
 
   float pt1=-99;
@@ -435,8 +435,8 @@ if(njet>1){
 resoCorr->Divide(resoEntries);
 resoCorr->Write();
 
-  //nt_track->Write();
- // nt_particle->Write();
+    //nt_track->Write();
+    //nt_particle->Write();
     outf->Write();
     outf->Close();
 }
